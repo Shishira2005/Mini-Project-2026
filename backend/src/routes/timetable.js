@@ -1,3 +1,4 @@
+// Timetable entry APIs and admin classroom timetable layout (grid).
 const express = require("express");
 const TimetableEntry = require("../models/TimetableEntry");
 const AdminClassroomTimetable = require("../models/AdminClassroomTimetable");

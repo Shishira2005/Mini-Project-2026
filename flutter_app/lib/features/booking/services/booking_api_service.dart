@@ -1,3 +1,4 @@
+// Booking-related API calls for classrooms and reservations.
 import '../../../core/api/api_client.dart';
 import '../models/booking_model.dart';
 import '../models/classroom_model.dart';

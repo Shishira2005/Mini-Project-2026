@@ -1,3 +1,4 @@
+// Admin editor for the weekly classroom timetable grid.
 import 'package:flutter/material.dart';
 
 import '../../../core/api/api_client.dart';

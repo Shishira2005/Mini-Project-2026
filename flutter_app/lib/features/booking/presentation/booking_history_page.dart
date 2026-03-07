@@ -1,3 +1,4 @@
+// Booking history list for viewing past and current bookings.
 import 'package:flutter/material.dart';
 
 import '../../../core/api/api_client.dart';

@@ -1,3 +1,4 @@
+// Faculty profile and timetable view page.
 import 'package:flutter/material.dart';
 
 import '../../../core/api/api_client.dart';

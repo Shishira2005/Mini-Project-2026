@@ -1,3 +1,4 @@
+// Post-login dashboard showing main navigation tiles.
 import 'package:flutter/material.dart';
 
 import '../../../shared/widgets/app_background.dart';

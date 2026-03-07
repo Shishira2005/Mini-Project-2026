@@ -1,3 +1,4 @@
+// Per-classroom settings (capacity, projector, batch, CRs).
 const mongoose = require("mongoose");
 
 const adminClassroomSettingsSchema = new mongoose.Schema(

@@ -1,3 +1,4 @@
+// Admin CRUD for per-classroom settings and CR accounts.
 const express = require("express");
 const AdminClassroomSettings = require("../models/AdminClassroomSettings");
 const Classroom = require("../models/Classroom");

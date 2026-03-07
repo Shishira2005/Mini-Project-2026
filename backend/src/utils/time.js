@@ -1,3 +1,7 @@
+// Helper functions for working with times and dates.
+// Used across booking, timetable, and swap logic.
+
+// Convert a HH:mm time string into the number of minutes since midnight.
 const toMinutes = (time) => {
   const [hours, minutes] = String(time).split(":").map(Number);
   if (
@@ -13,6 +17,7 @@ const toMinutes = (time) => {
   return hours * 60 + minutes;
 };
 
+// Return true when two [start, end) time intervals overlap.
 const intervalsOverlap = (startA, endA, startB, endB) => {
   const aStart = toMinutes(startA);
   const aEnd = toMinutes(endA);
@@ -26,6 +31,8 @@ const intervalsOverlap = (startA, endA, startB, endB) => {
   return aStart < bEnd && bStart < aEnd;
 };
 
+// Normalize any input date to a Date object that represents
+// midnight (00:00:00) of that same calendar day.
 const toDateOnly = (inputDate) => {
   const date = new Date(inputDate);
   if (Number.isNaN(date.getTime())) {

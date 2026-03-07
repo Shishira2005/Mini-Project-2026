@@ -1,3 +1,4 @@
+// Booking availability checks and CRUD endpoints.
 const express = require("express");
 
 const Booking = require("../models/Booking");

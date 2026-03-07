@@ -1,3 +1,4 @@
+// Admin endpoints to list representative and faculty accounts.
 const express = require("express");
 
 const UserAccount = require("../models/UserAccount");

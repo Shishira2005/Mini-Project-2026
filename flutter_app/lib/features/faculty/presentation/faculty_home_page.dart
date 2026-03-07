@@ -1,3 +1,4 @@
+// Faculty home dashboard with quick access to features.
 import 'package:flutter/material.dart';
 
 import '../../../shared/widgets/college_banner.dart';

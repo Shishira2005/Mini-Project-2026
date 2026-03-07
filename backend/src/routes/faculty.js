@@ -1,3 +1,4 @@
+// Faculty profile endpoint derived from admin timetable and settings.
 const express = require("express");
 const AdminClassroomTimetable = require("../models/AdminClassroomTimetable");
 const AdminClassroomSettings = require("../models/AdminClassroomSettings");

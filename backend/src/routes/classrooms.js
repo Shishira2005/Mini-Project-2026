@@ -1,8 +1,10 @@
+// CRUD and bulk upload endpoints for Classroom documents.
 const express = require("express");
 const Classroom = require("../models/Classroom");
 
 const router = express.Router();
 
+// List all classrooms ordered by room number.
 router.get("/", async (req, res) => {
   try {
     const classrooms = await Classroom.find().sort({ roomNumber: 1 });
@@ -12,6 +14,7 @@ router.get("/", async (req, res) => {
   }
 });
 
+// Create a single classroom from the request body.
 router.post("/", async (req, res) => {
   try {
     const classroom = await Classroom.create(req.body);
@@ -21,6 +24,7 @@ router.post("/", async (req, res) => {
   }
 });
 
+// Upsert many classrooms in one request, used for admin uploads.
 router.post("/bulk", async (req, res) => {
   try {
     const { classrooms } = req.body;

@@ -1,3 +1,4 @@
+// User login account for all roles (admin, faculty, representative).
 const mongoose = require("mongoose");
 
 const userAccountSchema = new mongoose.Schema(

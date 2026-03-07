@@ -1,3 +1,5 @@
+// One-time script to populate sample classrooms, timetable entries
+// and matching user accounts (faculty, representatives, admin).
 require("dotenv").config();
 
 const connectDB = require("../config/db");

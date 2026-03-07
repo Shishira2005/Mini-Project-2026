@@ -1,3 +1,4 @@
+// Auth-related API calls (login, etc.) using ApiClient.
 import '../../../core/api/api_client.dart';
 import '../models/auth_user.dart';
 

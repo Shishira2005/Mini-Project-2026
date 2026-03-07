@@ -1,3 +1,4 @@
+// Admin overview page for timetable and related tooling.
 import 'package:flutter/material.dart';
 
 import '../../../shared/widgets/college_banner.dart';

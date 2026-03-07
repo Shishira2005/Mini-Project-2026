@@ -1,3 +1,4 @@
+// Swap room feature: options, requests, history, notifications.
 const express = require("express");
 const router = express.Router();
 

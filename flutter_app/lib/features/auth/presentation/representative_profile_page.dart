@@ -1,3 +1,4 @@
+// Profile page showing representative details and type.
 import 'package:flutter/material.dart';
 
 import '../../../shared/widgets/app_background.dart';

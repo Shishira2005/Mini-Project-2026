@@ -1,3 +1,4 @@
+// Lightweight HTTP client wrapper used by feature services.
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;

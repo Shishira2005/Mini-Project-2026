@@ -1,3 +1,4 @@
+// Swap request between two classrooms for a specific period.
 const mongoose = require("mongoose");
 
 const swapRequestSchema = new mongoose.Schema(

@@ -1,3 +1,4 @@
+// Home page for class representatives.
 import 'package:flutter/material.dart';
 
 import '../../../shared/widgets/college_banner.dart';

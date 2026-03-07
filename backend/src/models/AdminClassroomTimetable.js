@@ -1,3 +1,4 @@
+// Admin-defined weekly timetable grid per classroom.
 const mongoose = require("mongoose");
 
 const slotDetailSchema = new mongoose.Schema(

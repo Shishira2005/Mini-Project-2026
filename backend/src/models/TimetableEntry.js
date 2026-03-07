@@ -1,3 +1,4 @@
+// Legacy per-period timetable entry (room, subject, faculty, batch).
 const mongoose = require("mongoose");
 
 const timetableEntrySchema = new mongoose.Schema(

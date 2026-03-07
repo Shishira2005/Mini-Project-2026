@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+// Admin page for editing classroom capacity, projector and CR details.
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

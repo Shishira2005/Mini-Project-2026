@@ -1,3 +1,4 @@
+// Flutter entry point for the college room booking app.
 import 'package:flutter/material.dart';
 
 import 'features/splash/presentation/splash_page.dart';

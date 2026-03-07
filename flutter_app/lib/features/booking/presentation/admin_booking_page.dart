@@ -1,3 +1,4 @@
+// Admin view for creating and managing room bookings.
 import 'package:flutter/material.dart';
 
 import '../../../core/api/api_client.dart';

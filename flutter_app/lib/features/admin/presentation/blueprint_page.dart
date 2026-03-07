@@ -1,3 +1,4 @@
+// Page that shows uploaded classroom/college blueprint images.
 import 'package:flutter/material.dart';
 
 import '../../../shared/widgets/app_background.dart';

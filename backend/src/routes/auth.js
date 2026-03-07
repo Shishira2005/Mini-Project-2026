@@ -1,3 +1,4 @@
+// Authentication endpoints for login and listing supported roles.
 const express = require("express");
 
 const UserAccount = require("../models/UserAccount");

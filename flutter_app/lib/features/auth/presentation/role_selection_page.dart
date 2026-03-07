@@ -1,3 +1,4 @@
+// Page for choosing the user role before login.
 import 'package:flutter/material.dart';
 
 import '../../../shared/widgets/college_banner.dart';

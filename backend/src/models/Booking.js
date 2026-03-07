@@ -1,3 +1,4 @@
+// One room booking instance (who, when, which room, status).
 const mongoose = require("mongoose");
 
 const bookingSchema = new mongoose.Schema(

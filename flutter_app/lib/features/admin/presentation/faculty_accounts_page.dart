@@ -1,4 +1,5 @@
 
+// Admin list of faculty accounts fetched from the backend.
 import 'package:flutter/material.dart';
 
 import '../../../core/api/api_client.dart';

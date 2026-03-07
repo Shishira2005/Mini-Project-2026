@@ -1,3 +1,4 @@
+// Notifications page for incoming swap requests to a faculty member.
 import 'package:flutter/material.dart';
 
 import '../../../core/api/api_client.dart';

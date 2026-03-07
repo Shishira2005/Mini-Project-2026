@@ -1,3 +1,4 @@
+// Main admin dashboard with navigation to admin tools.
 import 'package:flutter/material.dart';
 
 import '../../../shared/widgets/college_banner.dart';

@@ -1,3 +1,4 @@
+// Page for selecting a timetable slot and target room to swap.
 import 'package:flutter/material.dart';
 
 import '../../../core/api/api_client.dart';

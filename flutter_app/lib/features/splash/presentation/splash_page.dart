@@ -1,5 +1,6 @@
 import 'dart:async';
 
+// Initial splash screen that launches the app and routes to login.
 import 'package:flutter/material.dart';
 
 import '../../../core/api/api_client.dart';
