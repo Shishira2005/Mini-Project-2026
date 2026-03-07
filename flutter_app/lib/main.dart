@@ -1,0 +1,21 @@
+import 'package:flutter/material.dart';
+
+import 'features/splash/presentation/splash_page.dart';
+
+void main() {
+  runApp(const RoomBookingApp());
+}
+
+class RoomBookingApp extends StatelessWidget {
+  const RoomBookingApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'College Room Booking',
+      theme: ThemeData(useMaterial3: true),
+      home: const SplashPage(),
+    );
+  }
+}
