@@ -28,6 +28,7 @@ class _SwapRoomPageState extends State<SwapRoomPage> {
   bool _loading = false;
   String? _error;
   SwapOptionsResult? _result;
+  int? _selectedRequesterIndex;
 
   static const _monThuSlots = <Map<String, String>>[
     {'start': '09:30', 'end': '10:30'},
@@ -68,6 +69,7 @@ class _SwapRoomPageState extends State<SwapRoomPage> {
         _selectedStartTime = null;
         _selectedEndTime = null;
         _result = null;
+        _selectedRequesterIndex = null;
         _error = null;
       });
     }
@@ -96,6 +98,7 @@ class _SwapRoomPageState extends State<SwapRoomPage> {
       _loading = true;
       _error = null;
       _result = null;
+      _selectedRequesterIndex = null;
     });
 
     const apiBaseUrl = String.fromEnvironment(
@@ -120,6 +123,15 @@ class _SwapRoomPageState extends State<SwapRoomPage> {
       setState(() {
         _loading = false;
         _result = result;
+        // Default selection: first requester entry if multiple, otherwise
+        // the single requesterEntry if present.
+        if (result.requesterEntries.isNotEmpty) {
+          _selectedRequesterIndex = 0;
+        } else if (result.requesterEntry != null) {
+          _selectedRequesterIndex = 0;
+        } else {
+          _selectedRequesterIndex = null;
+        }
         _error = result.available ? null : (result.message.isEmpty ? 'NO SWAPPING AVAILABLE' : result.message);
       });
     } catch (e) {
@@ -194,7 +206,7 @@ class _SwapRoomPageState extends State<SwapRoomPage> {
                         labelText: 'Period',
                         border: OutlineInputBorder(),
                       ),
-                      value: _selectedStartTime,
+                      initialValue: _selectedStartTime,
                       items: _currentSlots
                           .map(
                             (slot) => DropdownMenuItem<String>(
@@ -266,16 +278,43 @@ class _SwapRoomPageState extends State<SwapRoomPage> {
 
   Widget _buildResultsList(SwapOptionsResult result) {
     final tiles = <Widget>[];
+    final requesterEntries = result.requesterEntries.isNotEmpty
+        ? result.requesterEntries
+        : (result.requesterEntry != null
+            ? <SwapOptionModel>[result.requesterEntry!]
+            : <SwapOptionModel>[]);
 
-    if (result.requesterEntry != null) {
+    if (requesterEntries.isNotEmpty) {
       tiles.add(
         Card(
           color: Colors.grey.shade300,
-          child: ListTile(
-            title: Text(result.requesterEntry!.classroomName),
-            subtitle: Text(
-              'Your class: ${result.requesterEntry!.courseName} (Capacity: ${result.requesterEntry!.capacity ?? '-'}; Projector: ${result.requesterEntry!.hasProjector ? 'Yes' : 'No'})',
-            ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  requesterEntries.length > 1
+                      ? 'Select which of your classes you are in for this period:'
+                      : 'Your class at this period:',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
+              for (var i = 0; i < requesterEntries.length; i++)
+                RadioListTile<int>(
+                  value: i,
+                  groupValue: _selectedRequesterIndex,
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedRequesterIndex = value;
+                    });
+                  },
+                  title: Text(requesterEntries[i].classroomName),
+                  subtitle: Text(
+                    'Class: ${requesterEntries[i].courseName} (Capacity: ${requesterEntries[i].capacity ?? '-'}; Projector: ${requesterEntries[i].hasProjector ? 'Yes' : 'No'})',
+                  ),
+                ),
+            ],
           ),
         ),
       );
@@ -295,13 +334,27 @@ class _SwapRoomPageState extends State<SwapRoomPage> {
             ),
             onTap: isGreen
                 ? () {
+                    final requesterList = requesterEntries;
+                    SwapOptionModel? selectedRequester;
+                    if (requesterList.isNotEmpty) {
+                      final index = (_selectedRequesterIndex ?? 0)
+                          .clamp(0, requesterList.length - 1);
+                      selectedRequester = requesterList[index];
+                    } else {
+                      selectedRequester = result.requesterEntry;
+                    }
+
+                    if (selectedRequester == null) {
+                      return;
+                    }
+
                     final args = SwapBookingArgs(
                       user: widget.user,
                       date: _selectedDate!,
                       startTime: _selectedStartTime!,
                       endTime: _selectedEndTime!,
                       projectorRequired: _projectorRequired,
-                      requesterEntry: result.requesterEntry!,
+                      requesterEntry: selectedRequester,
                       targetOption: option,
                     );
                     Navigator.of(context).push(

@@ -230,7 +230,7 @@ class _AdminBookingPageState extends State<AdminBookingPage> {
                       ),
                       const SizedBox(height: 4),
                       DropdownButtonFormField<String>(
-                        value: _selectedTimeSlot,
+                        initialValue: _selectedTimeSlot,
                         decoration: const InputDecoration(
                           border: OutlineInputBorder(),
                           hintText: 'Select time slot',
@@ -507,7 +507,7 @@ class _AdminBookingNextPageState extends State<AdminBookingNextPage> {
       ),
       bottomNavigationBar: const CollegeBanner(),
       body: Container
-        (color: theme.colorScheme.surfaceVariant.withOpacity(0.3),
+        (color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
         alignment: Alignment.topCenter,
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -917,7 +917,7 @@ class _AdminBookingConfirmPageState extends State<AdminBookingConfirmPage> {
       ),
       bottomNavigationBar: const CollegeBanner(),
       body: Container(
-        color: theme.colorScheme.surfaceVariant.withOpacity(0.3),
+        color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
         alignment: Alignment.topCenter,
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),

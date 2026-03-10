@@ -9,7 +9,6 @@ import '../../auth/services/auth_api_service.dart';
 import '../../../core/api/api_client.dart';
 import '../../booking/presentation/admin_booking_page.dart';
 import '../../booking/presentation/booking_history_page.dart';
-import '../../booking/presentation/swap_room_page.dart';
 import '../../booking/presentation/swap_history_page.dart';
 import 'timetable_page.dart';
 import 'blueprint_page.dart';
@@ -85,18 +84,6 @@ class AdminHomePage extends StatelessWidget {
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (_) => BookingHistoryPage(viewer: user),
-                    ),
-                  );
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.swap_horiz),
-                title: const Text('Swap Room'),
-                onTap: () {
-                  Navigator.of(context).pop();
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => SwapRoomPage(user: user),
                     ),
                   );
                 },

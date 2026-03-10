@@ -61,7 +61,7 @@ class RoleSelectionPage extends StatelessWidget {
         centerTitle: true,
         elevation: 0,
         backgroundColor: Colors.transparent,
-        foregroundColor: colorScheme.onBackground,
+        foregroundColor: colorScheme.onSurface,
       ),
       bottomNavigationBar: const CollegeBanner(),
       extendBodyBehindAppBar: true,

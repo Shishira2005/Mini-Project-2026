@@ -87,7 +87,7 @@ class RepresentativeProfilePage extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: colorScheme.surfaceVariant.withOpacity(0.35),
+                          color: colorScheme.surfaceContainerHighest.withOpacity(0.35),
                           borderRadius: BorderRadius.circular(14),
                         ),
                         child: Row(

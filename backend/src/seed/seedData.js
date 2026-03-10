@@ -8,6 +8,16 @@ const TimetableEntry = require("../models/TimetableEntry");
 const UserAccount = require("../models/UserAccount");
 const { hashPassword } = require("../utils/auth");
 
+// EXTRA SAFETY: this script is destructive (it calls deleteMany on
+// multiple collections). To avoid accidentally wiping production
+// data, require an explicit opt-in flag.
+if (process.env.ALLOW_DESTRUCTIVE_SEED !== "true") {
+  console.error(
+    "Refusing to run seed: this script deletes data. Set ALLOW_DESTRUCTIVE_SEED=true in the environment if you really intend to reseed this database."
+  );
+  process.exit(1);
+}
+
 const classroomsData = [
   {
     roomNumber: "C-101",

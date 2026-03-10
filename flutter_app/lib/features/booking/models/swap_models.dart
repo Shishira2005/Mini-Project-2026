@@ -39,6 +39,7 @@ class SwapOptionsResult {
     required this.startTime,
     required this.endTime,
     required this.requesterEntry,
+    required this.requesterEntries,
     required this.options,
   });
 
@@ -49,10 +50,13 @@ class SwapOptionsResult {
   final String? startTime;
   final String? endTime;
   final SwapOptionModel? requesterEntry;
+   final List<SwapOptionModel> requesterEntries;
   final List<SwapOptionModel> options;
 
   factory SwapOptionsResult.fromJson(Map<String, dynamic> json) {
     final requesterJson = json['requesterEntry'] as Map<String, dynamic>?;
+    final requesterEntriesJson = json['requesterEntries'] as List<dynamic>? ??
+        <dynamic>[];
     final optionsJson = json['options'] as List<dynamic>? ?? <dynamic>[];
 
     return SwapOptionsResult(
@@ -66,6 +70,9 @@ class SwapOptionsResult {
           (json['timeRange'] as Map<String, dynamic>?)?['endTime'] as String?,
       requesterEntry:
           requesterJson != null ? SwapOptionModel.fromJson(requesterJson) : null,
+        requesterEntries: requesterEntriesJson
+          .map((e) => SwapOptionModel.fromJson(e as Map<String, dynamic>))
+          .toList(),
       options: optionsJson
           .map((e) => SwapOptionModel.fromJson(e as Map<String, dynamic>))
           .toList(),

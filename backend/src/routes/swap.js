@@ -107,7 +107,7 @@ router.get("/options", async (req, res) => {
     });
 
     const candidates = [];
-    let requesterEntry = null;
+    const requesterEntries = [];
 
     timetables.forEach((layout) => {
       const classroomName = layout.classroomName;
@@ -129,17 +129,46 @@ router.get("/options", async (req, res) => {
         slotCode = grid[key];
       }
 
-      const trimmedSlotCode = (slotCode || "").toString().trim();
-      if (!trimmedSlotCode) {
+      const rawSlot = (slotCode || "").toString().trim();
+      if (!rawSlot) {
         return; // No class scheduled in this room at that time
+      }
+
+      // Support multi-slot cells like "D/D1" or "X/Y/Z" by splitting
+      // on '/'.
+      const slotCodes = rawSlot
+        .split("/")
+        .map((part) => part.trim())
+        .filter((part) => part.length > 0);
+
+      if (slotCodes.length === 0) {
+        return;
       }
 
       const slotDetails = Array.isArray(layout.slotDetails)
         ? layout.slotDetails
         : [];
-      const detail = slotDetails.find(
-        (d) => (d.slot || "").toString().trim() === trimmedSlotCode
-      );
+
+      let detail = null;
+
+      // If a facultyId is provided, prefer the detail matching that
+      // faculty and one of the slot codes in this cell.
+      if (facultyId) {
+        detail = slotDetails.find((d) => {
+          const code = (d.slot || "").toString().trim();
+          if (!code || !slotCodes.includes(code)) return false;
+          const dFaculty = (d.facultyId || "").toString().trim();
+          return dFaculty === facultyId;
+        });
+      }
+
+      // Fallback: any detail whose slot matches one of the codes.
+      if (!detail) {
+        detail = slotDetails.find((d) => {
+          const code = (d.slot || "").toString().trim();
+          return code && slotCodes.includes(code);
+        });
+      }
 
       if (!detail) {
         return;
@@ -159,22 +188,28 @@ router.get("/options", async (req, res) => {
       };
 
       if (entry.facultyId === facultyId) {
-        requesterEntry = entry;
+        requesterEntries.push(entry);
       }
 
       candidates.push(entry);
     });
 
-    // Faculty must have a class in some classroom at this time
-    if (!requesterEntry) {
+    // Faculty must have at least one class in some classroom at this time
+    if (requesterEntries.length === 0) {
       return res.json({
         available: false,
         message: "NO SWAPPING AVAILABLE",
       });
     }
 
+    const requesterClassroomNames = new Set(
+      requesterEntries.map((e) => e.classroomName)
+    );
+
     const options = candidates
-      .filter((entry) => entry.classroomName !== requesterEntry.classroomName)
+      // Do not offer swapping with any of the faculty's own classrooms; the
+      // requester will choose which of their classes is the source.
+      .filter((entry) => !requesterClassroomNames.has(entry.classroomName))
       .map((entry) => {
         const projectorOk = projectorRequired === "true" ? entry.hasProjector : true;
         return {
@@ -188,16 +223,27 @@ router.get("/options", async (req, res) => {
         };
       });
 
+    // For backward compatibility, keep a single requesterEntry (the first
+    // one), but also expose all of the faculty's classes at this period via
+    // requesterEntries so the client can let the user choose.
+    const primaryRequester = requesterEntries[0] || null;
+
     res.json({
       available: options.length > 0,
       message: options.length > 0 ? "" : "NO SWAPPING AVAILABLE",
       weekdayIndex,
       periodIndex,
       timeRange: { startTime, endTime },
-      requesterEntry: {
-        ...requesterEntry,
+      requesterEntry: primaryRequester
+        ? {
+            ...primaryRequester,
+            colorHint: "grey",
+          }
+        : null,
+      requesterEntries: requesterEntries.map((entry) => ({
+        ...entry,
         colorHint: "grey",
-      },
+      })),
       options,
     });
   } catch (err) {

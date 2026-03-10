@@ -101,8 +101,17 @@ router.get("/:facultyId/profile", async (req, res) => {
           : Object.entries(grid);
 
       for (const [key, value] of gridEntries) {
-        const slotCode = (value || "").toString().trim();
-        if (!slotCode || !slotLookup.has(slotCode)) continue;
+        const raw = (value || "").toString().trim();
+        if (!raw) continue;
+
+        // Support multi-slot cells like "D/D1" or "X/Y/Z" by splitting
+        // on '/'. Each part is treated as an individual slot code.
+        const slotCodes = raw
+          .split("/")
+          .map((part) => part.trim())
+          .filter((part) => part.length > 0);
+
+        if (slotCodes.length === 0) continue;
 
         const parts = String(key).split("_");
         if (parts.length !== 2) continue;
@@ -120,17 +129,22 @@ router.get("/:facultyId/profile", async (req, res) => {
         const timeRange = getTimeRangeForCell(weekdayIndex, periodIndex);
         if (!timeRange) continue; // Skip lunch or invalid cells
 
-        const detail = slotLookup.get(slotCode);
         const dayName = DAY_NAMES[weekdayIndex];
 
-        entries.push({
-          courseName: detail.courseName || "",
-          dayOfWeek: weekdayIndex,
-          dayName,
-          startTime: timeRange.start,
-          endTime: timeRange.end,
-          classroomName,
-        });
+        for (const code of slotCodes) {
+          if (!slotLookup.has(code)) continue;
+
+          const detail = slotLookup.get(code);
+
+          entries.push({
+            courseName: detail.courseName || "",
+            dayOfWeek: weekdayIndex,
+            dayName,
+            startTime: timeRange.start,
+            endTime: timeRange.end,
+            classroomName,
+          });
+        }
       }
     }
 
