@@ -287,6 +287,12 @@ router.post("/requests", async (req, res) => {
 
     const weekdayIndex = getTimetableWeekdayIndex(date);
 
+    // Disallow creating swap requests for Saturdays and Sundays (or any
+    // date that does not map to a valid timetable weekday).
+    if (weekdayIndex === null) {
+      return res.status(400).json({ message: "NO SWAPPING AVAILABLE" });
+    }
+
     const swap = new SwapRequest({
       date,
       weekdayIndex,

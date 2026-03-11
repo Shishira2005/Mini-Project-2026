@@ -292,9 +292,14 @@ router.get("/availability", async (req, res) => {
     if (minCapacity !== undefined) {
       roomFilters.capacity = { $gte: Number(minCapacity) };
     }
-    if (projector !== undefined) {
-      roomFilters.hasProjector = projector === "true";
+
+    // Projector filter semantics:
+    // - If projector === "true": only rooms WITH projector
+    // - If projector is omitted or any other value: include all rooms
+    if (projector === "true") {
+      roomFilters.hasProjector = true;
     }
+
     if (type) {
       roomFilters.type = type;
     }
