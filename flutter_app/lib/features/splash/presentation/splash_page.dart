@@ -20,8 +20,10 @@ class _SplashPageState extends State<SplashPage> {
   @override
   void initState() {
     super.initState();
-    // Navigate to role selection after 4 seconds.
+    // Warm up the backend and then navigate to role selection.
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      _warmUpBackend();
+
       Timer(const Duration(seconds: 4), () {
         if (!mounted) return;
 
@@ -39,6 +41,21 @@ class _SplashPageState extends State<SplashPage> {
         );
       });
     });
+  }
+
+  Future<void> _warmUpBackend() async {
+    const apiBaseUrl = String.fromEnvironment(
+      'API_BASE_URL',
+      defaultValue: 'http://10.0.2.2:5000',
+    );
+
+    final apiClient = ApiClient(baseUrl: apiBaseUrl);
+    try {
+      // Fire‑and‑forget health check to "wake" Render/hosted backend.
+      await apiClient.get('/health');
+    } catch (_) {
+      // Ignore failures here; real errors will still be shown on login.
+    }
   }
 
   @override

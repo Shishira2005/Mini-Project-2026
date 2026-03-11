@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 
 import '../../../core/api/api_client.dart';
 import '../../auth/models/auth_user.dart';
+import '../../admin/presentation/admin_home_page.dart';
+import '../../faculty/presentation/faculty_home_page.dart';
+import '../../auth/presentation/representative_home_page.dart';
 import '../models/swap_models.dart';
 import '../services/swap_api_service.dart';
 import '../../../shared/widgets/app_background.dart';
@@ -92,7 +95,18 @@ class _SwapBookingPageState extends State<SwapBookingPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Swap request submitted.')),
       );
-      Navigator.of(context).popUntil((route) => route.isFirst);
+
+      final user = widget.args.user;
+      final destinationPage = user.role == UserRole.admin
+          ? AdminHomePage(user: user)
+          : user.role == UserRole.faculty
+              ? FacultyHomePage(user: user)
+              : RepresentativeHomePage(user: user);
+
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => destinationPage),
+        (route) => false,
+      );
     } catch (e) {
       setState(() {
         _submitting = false;

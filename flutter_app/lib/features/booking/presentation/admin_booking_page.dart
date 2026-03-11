@@ -5,6 +5,9 @@ import '../../../core/api/api_client.dart';
 import '../../../shared/widgets/college_banner.dart';
 import '../../../shared/widgets/app_background.dart';
 import '../../auth/models/auth_user.dart';
+import '../../admin/presentation/admin_home_page.dart';
+import '../../faculty/presentation/faculty_home_page.dart';
+import '../../auth/presentation/representative_home_page.dart';
 import '../services/booking_api_service.dart';
 
 class AdminBookingPage extends StatefulWidget {
@@ -891,8 +894,17 @@ class _AdminBookingConfirmPageState extends State<AdminBookingConfirmPage> {
         const SnackBar(content: Text('Booking created successfully.')),
       );
 
-      Navigator.of(context).popUntil((route) => route.isFirst == false ? true : true);
-      Navigator.of(context).pop();
+      final user = widget.user;
+      final destinationPage = user.role == UserRole.admin
+          ? AdminHomePage(user: user)
+          : user.role == UserRole.faculty
+              ? FacultyHomePage(user: user)
+              : RepresentativeHomePage(user: user);
+
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => destinationPage),
+        (route) => false,
+      );
     } catch (error) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
