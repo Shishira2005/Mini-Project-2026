@@ -9,7 +9,7 @@ const connectDB = async (mongoUri) => {
     throw new Error("MONGO_URI is required");
   }
 
-  await mongoose.connect(mongoUri);
+  await mongoose.connect(mongoUri, { maxPoolSize: 20 });
   return mongoose.connection;
 };
 
