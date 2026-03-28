@@ -15,10 +15,37 @@ import 'blueprint_page.dart';
 import 'student_accounts_page.dart';
 import 'faculty_accounts_page.dart';
 
-class AdminHomePage extends StatelessWidget {
+class AdminHomePage extends StatefulWidget {
   const AdminHomePage({super.key, required this.user});
-
   final AuthUser user;
+  @override
+  State<AdminHomePage> createState() => _AdminHomePageState();
+}
+
+class _AdminHomePageState extends State<AdminHomePage> {
+  int _bgIndex = 0;
+  late final List<String> _bgImages;
+  @override
+  void initState() {
+    super.initState();
+    _bgImages = [
+      'assets/LBS IMAGE.jpg',
+      'assets/LBS IMAGE1.jpg',
+      'assets/LBS IMAGE2.jpg',
+      'assets/LBS IMAGE3.jpg',
+    ];
+    Future.microtask(_startSlideshow);
+  }
+
+  void _startSlideshow() async {
+    while (mounted) {
+      await Future.delayed(const Duration(seconds: 5));
+      if (!mounted) break;
+      setState(() {
+        _bgIndex = (_bgIndex + 1) % _bgImages.length;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +53,7 @@ class AdminHomePage extends StatelessWidget {
       'API_BASE_URL',
       defaultValue: 'http://10.0.2.2:5000',
     );
-
+    final user = widget.user;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Admin Home'),
@@ -166,19 +193,32 @@ class AdminHomePage extends StatelessWidget {
           ),
         ),
       ),
-      body: AppBackground(
-        opacity: 0.75,
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Welcome, ${user.name}', style: Theme.of(context).textTheme.titleLarge),
-              const SizedBox(height: 8),
-              const Text('Open the top-left menu and choose Time Table.'),
-            ],
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 800),
+            child: Image.asset(
+              _bgImages[_bgIndex],
+              key: ValueKey(_bgIndex),
+              fit: BoxFit.cover,
+            ),
           ),
-        ),
+          Container(
+            color: Colors.black.withOpacity(0.5),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Welcome, ${user.name}', style: Theme.of(context).textTheme.titleLarge),
+                const SizedBox(height: 8),
+                // Removed instructional sentence as requested
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

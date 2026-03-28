@@ -59,9 +59,58 @@ class _SwapHistoryPageState extends State<SwapHistoryPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isAdmin = widget.user.role == UserRole.admin;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Swap history'),
+        actions: isAdmin
+            ? [
+                IconButton(
+                  icon: const Icon(Icons.delete_forever),
+                  tooltip: 'Clear All Swap History',
+                  onPressed: () async {
+                    final confirmed = await showDialog<bool>(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: const Text('Clear All Swap History'),
+                        content: const Text('Are you sure you want to clear all swap history for all users? This cannot be undone.'),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.of(context).pop(false),
+                            child: const Text('Cancel'),
+                          ),
+                          ElevatedButton(
+                            onPressed: () => Navigator.of(context).pop(true),
+                            child: const Text('Clear'),
+                          ),
+                        ],
+                      ),
+                    );
+                    if (confirmed == true) {
+                      try {
+                        const apiBaseUrl = String.fromEnvironment(
+                          'API_BASE_URL',
+                          defaultValue: 'http://10.0.2.2:5000',
+                        );
+                        final apiClient = ApiClient(baseUrl: apiBaseUrl);
+                        final swapApi = SwapApiService(apiClient);
+                        await swapApi.clearAllSwapHistory();
+                        if (!mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('All swap history cleared.')),
+                        );
+                        await _load();
+                      } catch (e) {
+                        if (!mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Failed to clear swap history: $e')),
+                        );
+                      }
+                    }
+                  },
+                )
+              ]
+            : null,
       ),
       bottomNavigationBar: const CollegeBanner(),
       body: AppBackground(

@@ -1,3 +1,6 @@
+  Future<void> clearAllSwapHistory() async {
+    await _apiClient.delete('/api/swap/history');
+  }
 // Swap feature API calls (options, requests, history, notifications).
 import '../../../core/api/api_client.dart';
 import '../models/swap_models.dart';
