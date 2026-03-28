@@ -1,7 +1,4 @@
-  Future<void> clearAllSwapHistory() async {
-    await _apiClient.delete('/api/swap/history');
-  }
-// Swap feature API calls (options, requests, history, notifications).
+
 import '../../../core/api/api_client.dart';
 import '../models/swap_models.dart';
 
@@ -9,6 +6,10 @@ class SwapApiService {
   SwapApiService(this._apiClient);
 
   final ApiClient _apiClient;
+
+  Future<void> clearAllSwapHistory() async {
+    await _apiClient.delete('/api/swap/history');
+  }
 
   Future<SwapOptionsResult> fetchSwapOptions({
     required String facultyId,

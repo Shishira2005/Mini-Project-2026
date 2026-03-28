@@ -1,3 +1,14 @@
+// DELETE /api/swap/history
+// Clear all swap history (admin only)
+router.delete('/history', async (req, res) => {
+  try {
+    await SwapRequest.deleteMany({});
+    res.json({ message: 'All swap history cleared.' });
+  } catch (err) {
+    console.error('Error in DELETE /api/swap/history', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
 // Swap room feature: options, requests, history, notifications.
 const express = require("express");
 const router = express.Router();

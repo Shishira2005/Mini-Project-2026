@@ -30,9 +30,9 @@ class _AdminHomePageState extends State<AdminHomePage> {
     super.initState();
     _bgImages = [
       'assets/LBS IMAGE.jpg',
-      'assets/LBS IMAGE1.jpg',
-      'assets/LBS IMAGE2.jpg',
-      'assets/LBS IMAGE3.jpg',
+      'assets/LBS IMAGE1.jpeg',
+      'assets/LBS IMAGE2.jpeg',
+      'assets/LBS IMAGE3.jpeg',
     ];
     Future.microtask(_startSlideshow);
   }

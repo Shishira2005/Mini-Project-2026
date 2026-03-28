@@ -73,6 +73,9 @@ flutter_icons:
     - assets/blueprints/first floor blueprint.jpeg
     - assets/LBS LOGO.jpg
     - assets/LBS IMAGE.jpg
+    - assets/LBS IMAGE1.jpeg
+    - assets/LBS IMAGE2.jpeg
+    - assets/LBS IMAGE3.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
