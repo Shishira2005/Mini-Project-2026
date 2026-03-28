@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
 
 /// Reusable background widget that shows the campus image behind content.
-class AppBackground extends StatelessWidget {
+class AppBackground extends StatefulWidget {
   const AppBackground({
     super.key,
     required this.child,
     this.opacity = 0.15,
+    // this.slideDuration = const Duration(seconds: 4),
+    // this.fadeDuration = const Duration(milliseconds: 800),
   });
 
-  /// Main page content to render on top of the background.
   final Widget child;
-
-  /// How strongly the image should appear (0 = invisible, 1 = fully opaque).
   final double opacity;
 
   @override
@@ -34,4 +34,6 @@ class AppBackground extends StatelessWidget {
       ],
     );
   }
+}
+
 }
