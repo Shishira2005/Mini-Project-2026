@@ -1,3 +1,8 @@
+
+// Swap room feature: options, requests, history, notifications.
+const express = require("express");
+const router = express.Router();
+
 // DELETE /api/swap/history
 // Clear all swap history (admin only)
 router.delete('/history', async (req, res) => {
@@ -9,9 +14,6 @@ router.delete('/history', async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
-// Swap room feature: options, requests, history, notifications.
-const express = require("express");
-const router = express.Router();
 
 const AdminClassroomTimetable = require("../models/AdminClassroomTimetable");
 const AdminClassroomSettings = require("../models/AdminClassroomSettings");
