@@ -5,7 +5,7 @@ const userAccountSchema = new mongoose.Schema(
   {
     role: {
       type: String,
-      enum: ["faculty", "representative", "admin"],
+      enum: ["faculty", "representative", "admin", "commonFacilities"],
       required: true,
     },
     loginId: {
@@ -18,6 +18,11 @@ const userAccountSchema = new mongoose.Schema(
       type: String,
       required: true,
       trim: true,
+    },
+    commonFacilitiesCategory: {
+      type: String,
+      enum: ["student", "representative", "hod", "faculty"],
+      default: null,
     },
     passwordHash: {
       type: String,

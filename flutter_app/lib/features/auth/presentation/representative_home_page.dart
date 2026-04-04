@@ -154,9 +154,7 @@ class RepresentativeHomePage extends StatelessWidget {
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               const SizedBox(height: 8),
-              const Text(
-                'Use the menu to book rooms, view history, or see the blueprint.',
-              ),
+              // Removed instructional sentence
             ],
           ),
         ),

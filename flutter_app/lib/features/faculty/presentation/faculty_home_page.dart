@@ -193,9 +193,7 @@ class FacultyHomePage extends StatelessWidget {
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               const SizedBox(height: 8),
-              const Text(
-                'Use the menu to view bookings, blueprint, or your teaching profile.',
-              ),
+              // Removed instructional sentence
             ],
           ),
         ),

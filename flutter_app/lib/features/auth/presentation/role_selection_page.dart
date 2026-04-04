@@ -5,6 +5,7 @@ import '../../../shared/widgets/college_banner.dart';
 import '../../../shared/widgets/app_background.dart';
 import '../models/auth_user.dart';
 import '../services/auth_api_service.dart';
+import 'common_facilities_home_page.dart';
 import 'role_login_page.dart';
 
 class RoleSelectionPage extends StatelessWidget {
@@ -13,12 +14,17 @@ class RoleSelectionPage extends StatelessWidget {
   final AuthApiService authApiService;
 
   void _openLogin(BuildContext context, UserRole role) {
+    if (role == UserRole.commonFacilities) {
+      Navigator.of(context).push(
+        MaterialPageRoute(builder: (_) => const CommonFacilitiesHomePage()),
+      );
+      return;
+    }
+
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => RoleLoginPage(
-          role: role,
-          authApiService: authApiService,
-        ),
+        builder: (_) =>
+            RoleLoginPage(role: role, authApiService: authApiService),
       ),
     );
   }
@@ -45,6 +51,13 @@ class RoleSelectionPage extends StatelessWidget {
         description: 'Oversee schedules, permissions, and campus spaces.',
         icon: Icons.admin_panel_settings_outlined,
         accent: colorScheme.tertiary,
+      ),
+      _RoleOption(
+        role: UserRole.commonFacilities,
+        title: 'Common Facilities',
+        description: 'Manage shared spaces and common facility access.',
+        icon: Icons.apartment_outlined,
+        accent: colorScheme.error,
       ),
     ];
   }
@@ -96,12 +109,13 @@ class RoleSelectionPage extends StatelessWidget {
                           final isWide = constraints.maxWidth > 540;
                           return GridView.builder(
                             itemCount: roles.length,
-                            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: isWide ? 2 : 1,
-                              crossAxisSpacing: 16,
-                              mainAxisSpacing: 16,
-                              childAspectRatio: isWide ? 1.15 : 1.35,
-                            ),
+                            gridDelegate:
+                                SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: isWide ? 2 : 1,
+                                  crossAxisSpacing: 16,
+                                  mainAxisSpacing: 16,
+                                  childAspectRatio: isWide ? 1.15 : 1.35,
+                                ),
                             itemBuilder: (_, index) {
                               final option = roles[index];
                               return _RoleCard(
@@ -149,9 +163,7 @@ class _RoleCard extends StatelessWidget {
               offset: const Offset(0, 6),
             ),
           ],
-          border: Border.all(
-            color: option.accent.withOpacity(0.4),
-          ),
+          border: Border.all(color: option.accent.withOpacity(0.4)),
         ),
         child: Padding(
           padding: const EdgeInsets.all(18),
@@ -164,11 +176,7 @@ class _RoleCard extends StatelessWidget {
                   color: option.accent.withOpacity(0.12),
                   borderRadius: BorderRadius.circular(14),
                 ),
-                child: Icon(
-                  option.icon,
-                  color: option.accent,
-                  size: 28,
-                ),
+                child: Icon(option.icon, color: option.accent, size: 28),
               ),
               const Spacer(),
               Text(

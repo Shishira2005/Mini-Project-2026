@@ -1,4 +1,4 @@
-enum UserRole { faculty, representative, admin }
+enum UserRole { faculty, representative, admin, commonFacilities }
 
 extension UserRoleX on UserRole {
   String get value {
@@ -9,6 +9,8 @@ extension UserRoleX on UserRole {
         return 'representative';
       case UserRole.admin:
         return 'admin';
+      case UserRole.commonFacilities:
+        return 'commonFacilities';
     }
   }
 
@@ -20,6 +22,8 @@ extension UserRoleX on UserRole {
         return 'Representative';
       case UserRole.admin:
         return 'Admin';
+      case UserRole.commonFacilities:
+        return 'Common Facilities';
     }
   }
 
@@ -31,6 +35,8 @@ extension UserRoleX on UserRole {
         return 'Admission Number';
       case UserRole.admin:
         return 'Admin ID';
+      case UserRole.commonFacilities:
+        return 'Email Address';
     }
   }
 }

@@ -2,7 +2,6 @@
 import 'package:flutter/material.dart';
 
 import '../../../shared/widgets/college_banner.dart';
-import '../../../shared/widgets/app_background.dart';
 import '../../auth/models/auth_user.dart';
 import '../../auth/presentation/role_selection_page.dart';
 import '../../auth/services/auth_api_service.dart';
@@ -14,6 +13,7 @@ import 'timetable_page.dart';
 import 'blueprint_page.dart';
 import 'student_accounts_page.dart';
 import 'faculty_accounts_page.dart';
+import 'account_verification_page.dart';
 
 class AdminHomePage extends StatefulWidget {
   const AdminHomePage({super.key, required this.user});
@@ -28,12 +28,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
   @override
   void initState() {
     super.initState();
-    _bgImages = [
-      'assets/LBS IMAGE.jpg',
-      'assets/LBS IMAGE1.jpeg',
-      'assets/LBS IMAGE2.jpeg',
-      'assets/LBS IMAGE3.jpeg',
-    ];
+    _bgImages = ['assets/LBS IMAGE.jpg'];
     Future.microtask(_startSlideshow);
   }
 
@@ -55,9 +50,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
     );
     final user = widget.user;
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Admin Home'),
-      ),
+      appBar: AppBar(title: const Text('Admin Home')),
       bottomNavigationBar: const CollegeBanner(),
       drawer: Drawer(
         child: SafeArea(
@@ -75,10 +68,9 @@ class _AdminHomePageState extends State<AdminHomePage> {
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
                 child: Text(
                   'Management',
-                  style: Theme.of(context)
-                      .textTheme
-                      .labelMedium
-                      ?.copyWith(fontWeight: FontWeight.w600),
+                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
               ListTile(
@@ -161,6 +153,18 @@ class _AdminHomePageState extends State<AdminHomePage> {
                   );
                 },
               ),
+              ListTile(
+                leading: const Icon(Icons.verified_user_outlined),
+                title: const Text('Account Verification'),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const AccountVerificationPage(),
+                    ),
+                  );
+                },
+              ),
               const Spacer(),
               const Divider(height: 1),
               ListTile(
@@ -181,9 +185,8 @@ class _AdminHomePageState extends State<AdminHomePage> {
                   final authApiService = AuthApiService(apiClient);
                   Navigator.of(context).pushAndRemoveUntil(
                     MaterialPageRoute(
-                      builder: (_) => RoleSelectionPage(
-                        authApiService: authApiService,
-                      ),
+                      builder: (_) =>
+                          RoleSelectionPage(authApiService: authApiService),
                     ),
                     (route) => false,
                   );
@@ -204,15 +207,16 @@ class _AdminHomePageState extends State<AdminHomePage> {
               fit: BoxFit.cover,
             ),
           ),
-          Container(
-            color: Colors.black.withOpacity(0.5),
-          ),
+          Container(color: Colors.black.withOpacity(0.5)),
           Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Welcome, ${user.name}', style: Theme.of(context).textTheme.titleLarge),
+                Text(
+                  'Welcome, ${user.name}',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
                 const SizedBox(height: 8),
                 // Removed instructional sentence as requested
               ],

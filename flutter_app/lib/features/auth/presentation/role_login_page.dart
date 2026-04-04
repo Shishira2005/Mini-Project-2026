@@ -7,6 +7,7 @@ import '../../admin/presentation/admin_home_page.dart';
 import '../../faculty/presentation/faculty_home_page.dart';
 import '../models/auth_user.dart';
 import '../services/auth_api_service.dart';
+import 'common_facilities_portal_page.dart';
 import 'representative_home_page.dart';
 
 class RoleLoginPage extends StatefulWidget {
@@ -49,19 +50,23 @@ class _RoleLoginPageState extends State<RoleLoginPage> {
         password: _passwordController.text,
       );
 
-        if (!mounted) return;
-        final destinationPage = user.role == UserRole.admin
+      if (!mounted) return;
+      final destinationPage = user.role == UserRole.admin
           ? AdminHomePage(user: user)
           : user.role == UserRole.faculty
-            ? FacultyHomePage(user: user)
-            : RepresentativeHomePage(user: user);
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => destinationPage),
-      );
+          ? FacultyHomePage(user: user)
+          : user.role == UserRole.commonFacilities
+          ? CommonFacilitiesPortalPage(user: user)
+          : RepresentativeHomePage(user: user);
+      Navigator.of(
+        context,
+      ).pushReplacement(MaterialPageRoute(builder: (_) => destinationPage));
     } catch (error) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(error.toString().replaceFirst('Exception: ', ''))),
+        SnackBar(
+          content: Text(error.toString().replaceFirst('Exception: ', '')),
+        ),
       );
     } finally {
       if (mounted) {
@@ -73,6 +78,7 @@ class _RoleLoginPageState extends State<RoleLoginPage> {
   @override
   Widget build(BuildContext context) {
     final isAdmin = widget.role == UserRole.admin;
+    final isCommonFacilities = widget.role == UserRole.commonFacilities;
     final theme = Theme.of(context);
     final primaryColor = theme.colorScheme.primary;
 
@@ -89,15 +95,25 @@ class _RoleLoginPageState extends State<RoleLoginPage> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(
-                    isAdmin ? Icons.admin_panel_settings : Icons.person,
+                    isAdmin
+                        ? Icons.admin_panel_settings
+                        : isCommonFacilities
+                        ? Icons.apartment_outlined
+                        : Icons.person,
                     size: 56,
                     color: isAdmin
                         ? primaryColor
+                        : isCommonFacilities
+                        ? theme.colorScheme.error
                         : theme.colorScheme.secondary,
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    isAdmin ? 'Admin Portal' : '${widget.role.title} Login',
+                    isAdmin
+                        ? 'Admin Portal'
+                        : isCommonFacilities
+                        ? 'Common Facilities Portal'
+                        : '${widget.role.title} Login',
                     style: theme.textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.w600,
                     ),
@@ -107,9 +123,13 @@ class _RoleLoginPageState extends State<RoleLoginPage> {
                   Text(
                     isAdmin
                         ? 'Use your Admin ID and default password to continue.'
+                        : isCommonFacilities
+                        ? 'Use your Common Facilities ID and password to continue.'
                         : 'Sign in with your credentials to continue.',
                     style: theme.textTheme.bodyMedium?.copyWith(
-                      color: theme.textTheme.bodyMedium?.color?.withOpacity(0.7),
+                      color: theme.textTheme.bodyMedium?.color?.withOpacity(
+                        0.7,
+                      ),
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -171,7 +191,11 @@ class _RoleLoginPageState extends State<RoleLoginPage> {
                                         ),
                                       )
                                     : Text(
-                                        isAdmin ? 'Login as Admin' : 'Login',
+                                        isAdmin
+                                            ? 'Login as Admin'
+                                            : isCommonFacilities
+                                            ? 'Login as Common Facilities'
+                                            : 'Login',
                                       ),
                               ),
                             ),
