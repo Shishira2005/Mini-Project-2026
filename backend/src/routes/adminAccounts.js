@@ -152,6 +152,34 @@ router.get("/faculty", async (req, res) => {
   }
 });
 
+// DELETE /api/admin/accounts/faculty/:loginId
+// Permanently removes an existing faculty account.
+router.delete("/faculty/:loginId", async (req, res) => {
+  try {
+    const loginId = String(req.params.loginId).trim();
+
+    const account = await UserAccount.findOne({
+      role: "faculty",
+      loginId,
+      isActive: true,
+    });
+
+    if (!account) {
+      return res.status(404).json({ message: "Faculty account not found" });
+    }
+
+    await UserAccount.deleteOne({ _id: account._id });
+
+    res.json({
+      message: "Faculty account deleted successfully",
+      loginId: account.loginId,
+      name: account.name,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 // GET /api/admin/accounts/common-facilities
 // Returns all active Common Facilities accounts.
 router.get("/common-facilities", async (req, res) => {
