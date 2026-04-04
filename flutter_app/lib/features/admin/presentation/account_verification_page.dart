@@ -65,14 +65,25 @@ class _AccountVerificationPageState extends State<AccountVerificationPage> {
     if (email.isEmpty) return;
 
     try {
-      await _apiClient.patch(
-        '/api/admin/accounts/verification/${Uri.encodeComponent(email)}',
-      );
+      final response =
+          await _apiClient.patch(
+                '/api/admin/accounts/verification/${Uri.encodeComponent(email)}',
+              )
+              as Map<String, dynamic>;
 
       if (!mounted) return;
+      final notificationStatus =
+          response['notificationStatus']?.toString() ?? '';
+      final notificationError = response['notificationError']?.toString() ?? '';
+      final message = notificationStatus == 'sent'
+          ? 'Approved request for $email. Confirmation email sent.'
+          : notificationError.isEmpty
+          ? 'Approved request for $email. Confirmation email queued.'
+          : 'Approved request for $email. Email failed: $notificationError';
+
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Approved request for $email')));
+      ).showSnackBar(SnackBar(content: Text(message)));
       await _loadAccounts();
     } catch (error) {
       if (!mounted) return;
@@ -89,14 +100,25 @@ class _AccountVerificationPageState extends State<AccountVerificationPage> {
     if (email.isEmpty) return;
 
     try {
-      await _apiClient.patch(
-        '/api/admin/accounts/verification/${Uri.encodeComponent(email)}/decline',
-      );
+      final response =
+          await _apiClient.patch(
+                '/api/admin/accounts/verification/${Uri.encodeComponent(email)}/decline',
+              )
+              as Map<String, dynamic>;
 
       if (!mounted) return;
+      final notificationStatus =
+          response['notificationStatus']?.toString() ?? '';
+      final notificationError = response['notificationError']?.toString() ?? '';
+      final message = notificationStatus == 'sent'
+          ? 'Declined request for $email. Decline email sent.'
+          : notificationError.isEmpty
+          ? 'Declined request for $email. Decline email queued.'
+          : 'Declined request for $email. Email failed: $notificationError';
+
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Declined request for $email')));
+      ).showSnackBar(SnackBar(content: Text(message)));
       await _loadAccounts();
     } catch (error) {
       if (!mounted) return;
@@ -146,46 +168,63 @@ class _AccountVerificationPageState extends State<AccountVerificationPage> {
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.all(16),
         children: const [
+          Card(
+            child: Padding(
+              padding: EdgeInsets.all(16),
+              child: Text(
+                'When you approve or decline a request, a confirmation email is sent to the requester.',
+              ),
+            ),
+          ),
           Text('No Common Facilities requests are waiting for approval.'),
         ],
       );
     }
 
-    return ListView.builder(
+    return ListView(
       physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.all(16),
-      itemCount: _accounts.length,
-      itemBuilder: (context, index) {
-        final account = _accounts[index];
-        final email = account['email']?.toString() ?? '';
-        final name = account['name']?.toString() ?? '';
-        final category = account['category']?.toString() ?? '';
-        final subtitle = category.isEmpty
-            ? 'Email: $email'
-            : 'Email: $email | Category: $category';
-
-        return Card(
-          margin: const EdgeInsets.only(bottom: 8),
-          child: ListTile(
-            leading: const Icon(Icons.verified_user_outlined),
-            title: Text(name.isEmpty ? email : name),
-            subtitle: Text(subtitle),
-            trailing: Wrap(
-              spacing: 8,
-              children: [
-                ElevatedButton(
-                  onPressed: () => _verifyAccount(account),
-                  child: const Text('Approve'),
-                ),
-                OutlinedButton(
-                  onPressed: () => _declineAccount(account),
-                  child: const Text('Decline'),
-                ),
-              ],
+      children: [
+        const Card(
+          child: Padding(
+            padding: EdgeInsets.all(16),
+            child: Text(
+              'When you approve or decline a request, a confirmation email is sent to the requester.',
             ),
           ),
-        );
-      },
+        ),
+        const SizedBox(height: 12),
+        ..._accounts.map((account) {
+          final email = account['email']?.toString() ?? '';
+          final name = account['name']?.toString() ?? '';
+          final category = account['category']?.toString() ?? '';
+          final subtitle = category.isEmpty
+              ? 'Email: $email'
+              : 'Email: $email | Category: $category';
+
+          return Card(
+            margin: const EdgeInsets.only(bottom: 8),
+            child: ListTile(
+              leading: const Icon(Icons.verified_user_outlined),
+              title: Text(name.isEmpty ? email : name),
+              subtitle: Text(subtitle),
+              trailing: Wrap(
+                spacing: 8,
+                children: [
+                  ElevatedButton(
+                    onPressed: () => _verifyAccount(account),
+                    child: const Text('Approve'),
+                  ),
+                  OutlinedButton(
+                    onPressed: () => _declineAccount(account),
+                    child: const Text('Decline'),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }),
+      ],
     );
   }
 }

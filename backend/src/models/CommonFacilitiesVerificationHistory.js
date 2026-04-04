@@ -24,6 +24,25 @@ const commonFacilitiesVerificationHistorySchema = new mongoose.Schema(
       enum: ["approved", "declined"],
       required: true,
     },
+    notificationStatus: {
+      type: String,
+      enum: ["pending", "sent", "failed"],
+      default: "pending",
+    },
+    notificationError: {
+      type: String,
+      default: "",
+    },
+    notificationAttempts: {
+      type: Number,
+      default: 0,
+    },
+    notificationSentAt: {
+      type: Date,
+    },
+    notificationLastAttemptAt: {
+      type: Date,
+    },
     decidedAt: {
       type: Date,
       default: Date.now,

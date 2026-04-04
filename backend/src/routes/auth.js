@@ -1,40 +1,16 @@
 // Authentication endpoints for login and listing supported roles.
 const express = require("express");
 const crypto = require("crypto");
-const nodemailer = require("nodemailer");
 
 const UserAccount = require("../models/UserAccount");
 const CommonFacilitiesRequest = require("../models/CommonFacilitiesRequest");
 const AdminClassroomSettings = require("../models/AdminClassroomSettings");
+const { sendMail } = require("../utils/mailer");
 const { comparePassword, signToken, hashPassword } = require("../utils/auth");
 
 const router = express.Router();
 const OTP_TTL_MS = 10 * 60 * 1000;
 const resetRequests = new Map();
-
-function createMailerTransport() {
-  const host = process.env.SMTP_HOST;
-  const port = Number(process.env.SMTP_PORT || 587);
-  const secure = String(process.env.SMTP_SECURE || "false") === "true";
-
-  if (host) {
-    return nodemailer.createTransport({
-      host,
-      port,
-      secure,
-      auth: process.env.SMTP_USER
-        ? {
-            user: process.env.SMTP_USER,
-            pass: process.env.SMTP_PASS,
-          }
-        : undefined,
-    });
-  }
-
-  return nodemailer.createTransport({ jsonTransport: true });
-}
-
-const mailerTransport = createMailerTransport();
 
 function makeOtp() {
   return String(crypto.randomInt(100000, 1000000));
@@ -234,8 +210,7 @@ router.post("/common-facilities/forgot-password/send-otp", async (req, res) => {
       expiresAt: Date.now() + OTP_TTL_MS,
     });
 
-    await mailerTransport.sendMail({
-      from: process.env.SMTP_FROM || process.env.SMTP_USER || "no-reply@example.com",
+    await sendMail({
       to: trimmedEmail,
       subject: "Common Facilities password reset OTP",
       text: `Your 6-digit OTP is ${otp}. It will expire in 10 minutes.`,

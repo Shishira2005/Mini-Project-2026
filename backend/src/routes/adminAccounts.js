@@ -4,8 +4,58 @@ const express = require("express");
 const UserAccount = require("../models/UserAccount");
 const CommonFacilitiesRequest = require("../models/CommonFacilitiesRequest");
 const CommonFacilitiesVerificationHistory = require("../models/CommonFacilitiesVerificationHistory");
+const { sendMail } = require("../utils/mailer");
+const { buildVerificationEmail } = require("../utils/verificationEmails");
 
 const router = express.Router();
+
+async function sendVerificationNotice(history, request) {
+  const emailTemplate = buildVerificationEmail({
+    email: request.email,
+    name: request.name,
+    category: request.category,
+    status: history.status,
+  });
+
+  await CommonFacilitiesVerificationHistory.findByIdAndUpdate(history._id, {
+    $set: {
+      notificationStatus: "pending",
+      notificationError: "",
+      notificationLastAttemptAt: new Date(),
+      notificationAttempts: (history.notificationAttempts || 0) + 1,
+    },
+  });
+
+  try {
+    await sendMail({
+      to: request.email,
+      ...emailTemplate,
+    });
+
+    await CommonFacilitiesVerificationHistory.findByIdAndUpdate(history._id, {
+      $set: {
+        notificationStatus: "sent",
+        notificationError: "",
+        notificationSentAt: new Date(),
+        notificationLastAttemptAt: new Date(),
+      },
+    });
+
+    return { notificationStatus: "sent" };
+  } catch (mailError) {
+    const message = mailError?.message || "Failed to send notification";
+
+    await CommonFacilitiesVerificationHistory.findByIdAndUpdate(history._id, {
+      $set: {
+        notificationStatus: "failed",
+        notificationError: message,
+        notificationLastAttemptAt: new Date(),
+      },
+    });
+
+    return { notificationStatus: "failed", notificationError: message };
+  }
+}
 
 // GET /api/admin/accounts/representatives
 // Returns a simple list of representative accounts (admission no + name).
@@ -94,11 +144,17 @@ router.patch("/verification/:email", async (req, res) => {
       isActive: true,
     });
 
-    await CommonFacilitiesVerificationHistory.create({
+    const history = await CommonFacilitiesVerificationHistory.create({
       email,
       name: request.name,
       category: request.category,
       status: "approved",
+    });
+
+    const notificationResult = await sendVerificationNotice(history, {
+      email,
+      name: request.name,
+      category: request.category,
     });
 
     await CommonFacilitiesRequest.deleteOne({ email });
@@ -108,6 +164,8 @@ router.patch("/verification/:email", async (req, res) => {
       name: request.name,
       category: request.category,
       status: "approved",
+      notificationStatus: notificationResult.notificationStatus,
+      notificationError: notificationResult.notificationError || "",
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -125,11 +183,17 @@ router.patch("/verification/:email/decline", async (req, res) => {
       return res.status(404).json({ message: "Request not found" });
     }
 
-    await CommonFacilitiesVerificationHistory.create({
+    const history = await CommonFacilitiesVerificationHistory.create({
       email,
       name: request.name,
       category: request.category,
       status: "declined",
+    });
+
+    const notificationResult = await sendVerificationNotice(history, {
+      email,
+      name: request.name,
+      category: request.category,
     });
 
     await CommonFacilitiesRequest.deleteOne({ email });
@@ -139,6 +203,8 @@ router.patch("/verification/:email/decline", async (req, res) => {
       name: request.name,
       category: request.category,
       status: "declined",
+      notificationStatus: notificationResult.notificationStatus,
+      notificationError: notificationResult.notificationError || "",
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -155,13 +221,50 @@ router.get("/verification-history", async (req, res) => {
 
     res.json(
       history.map((entry) => ({
+        id: entry._id,
         email: entry.email,
         name: entry.name,
         category: entry.category,
         status: entry.status,
+        notificationStatus: entry.notificationStatus || "pending",
+        notificationError: entry.notificationError || "",
+        notificationAttempts: entry.notificationAttempts || 0,
+        notificationSentAt: entry.notificationSentAt,
+        notificationLastAttemptAt: entry.notificationLastAttemptAt,
         decidedAt: entry.decidedAt,
       }))
     );
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// PATCH /api/admin/accounts/verification-history/:id/retry-notification
+// Re-sends the verification email for a failed approval/decline.
+router.patch("/verification-history/:id/retry-notification", async (req, res) => {
+  try {
+    const history = await CommonFacilitiesVerificationHistory.findById(req.params.id);
+
+    if (!history) {
+      return res.status(404).json({ message: "History record not found" });
+    }
+
+    const request = {
+      email: history.email,
+      name: history.name,
+      category: history.category,
+      status: history.status,
+    };
+
+    const result = await sendVerificationNotice(history, request);
+
+    res.json({
+      id: history._id,
+      email: history.email,
+      status: history.status,
+      notificationStatus: result.notificationStatus,
+      notificationError: result.notificationError || "",
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
