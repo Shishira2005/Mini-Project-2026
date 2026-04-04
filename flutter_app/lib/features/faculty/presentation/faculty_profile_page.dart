@@ -39,9 +39,11 @@ class _FacultyProfilePageState extends State<FacultyProfilePage> {
     });
 
     try {
-      final data = await _apiClient.get(
-        '/api/faculty/${Uri.encodeComponent(widget.user.loginId)}/profile',
-      ) as Map<String, dynamic>;
+      final data =
+          await _apiClient.get(
+                '/api/faculty/${Uri.encodeComponent(widget.user.loginId)}/profile',
+              )
+              as Map<String, dynamic>;
 
       if (!mounted) return;
       setState(() {
@@ -66,35 +68,33 @@ class _FacultyProfilePageState extends State<FacultyProfilePage> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Faculty Profile'),
-      ),
+      appBar: AppBar(title: const Text('Faculty Profile')),
       body: AppBackground(
         opacity: 0.12,
         child: _isLoading
             ? const Center(child: CircularProgressIndicator())
             : _error != null
-                ? Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            _error!,
-                            textAlign: TextAlign.center,
-                            style: theme.textTheme.bodyMedium,
-                          ),
-                          const SizedBox(height: 12),
-                          ElevatedButton(
-                            onPressed: _loadProfile,
-                            child: const Text('Retry'),
-                          ),
-                        ],
+            ? Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        _error!,
+                        textAlign: TextAlign.center,
+                        style: theme.textTheme.bodyMedium,
                       ),
-                    ),
-                  )
-                : _buildContent(context),
+                      const SizedBox(height: 12),
+                      ElevatedButton(
+                        onPressed: _loadProfile,
+                        child: const Text('Retry'),
+                      ),
+                    ],
+                  ),
+                ),
+              )
+            : _buildContent(context),
       ),
     );
   }
@@ -115,105 +115,262 @@ class _FacultyProfilePageState extends State<FacultyProfilePage> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    if (entries.isEmpty) {
-      return Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _ProfileHeaderCard(
-              name: facultyName,
-              idLabel: 'Faculty ID',
-              idValue: widget.user.loginId,
-            ),
-            const SizedBox(height: 16),
-            Card(
-              elevation: 1,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
+    return RefreshIndicator(
+      onRefresh: _loadProfile,
+      child: CustomScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        slivers: [
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+              child: _FacultyHeroCard(
+                name: facultyName,
+                loginId: widget.user.loginId,
+                totalSlots: entries.length,
+                uniqueRooms: entries
+                    .map((entry) => entry['classroomName']?.toString() ?? '')
+                    .where((value) => value.isNotEmpty)
+                    .toSet()
+                    .length,
+                uniqueBatches: entries
+                    .map((entry) => entry['batch']?.toString() ?? '')
+                    .where((value) => value.isNotEmpty)
+                    .toSet()
+                    .length,
               ),
+            ),
+          ),
+          const SliverToBoxAdapter(child: SizedBox(height: 16)),
+          if (entries.isEmpty)
+            SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: _EmptyScheduleCard(
+                  colorScheme: colorScheme,
+                  onRefresh: _loadProfile,
+                  message:
+                      'No teaching slots have been configured yet for this faculty account.',
+                ),
+              ),
+            )
+          else ...[
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Row(
                   children: [
-                    Icon(
-                      Icons.info_outline,
-                      color: colorScheme.primary,
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        'No teaching slots have been configured yet.',
-                        style: theme.textTheme.bodyMedium,
+                    Icon(Icons.schedule_rounded, color: colorScheme.primary),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Teaching Schedule',
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ],
                 ),
               ),
             ),
+            const SliverToBoxAdapter(child: SizedBox(height: 8)),
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+              sliver: SliverList(
+                delegate: SliverChildBuilderDelegate((context, index) {
+                  final entry = entries[index];
+                  final courseName =
+                      (entry['courseName'] as String? ?? '').isEmpty
+                      ? 'Subject'
+                      : entry['courseName'] as String;
+                  final dayName = entry['dayName'] as String? ?? '';
+                  final startTime = entry['startTime'] as String? ?? '';
+                  final endTime = entry['endTime'] as String? ?? '';
+                  final classroomName =
+                      entry['classroomName'] as String? ?? 'Classroom';
+                  final batch = entry['batch'] as String? ?? '';
+
+                  return _ScheduleCard(
+                    courseName: courseName,
+                    dayName: dayName,
+                    startTime: startTime,
+                    endTime: endTime,
+                    classroomName: classroomName,
+                    batch: batch,
+                    accentColor: _accentColorForIndex(index, colorScheme),
+                  );
+                }, childCount: entries.length),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Color _accentColorForIndex(int index, ColorScheme colorScheme) {
+    final accents = [
+      colorScheme.primary,
+      colorScheme.tertiary,
+      Colors.teal,
+      Colors.deepOrange,
+      Colors.indigo,
+      Colors.pink,
+    ];
+
+    return accents[index % accents.length];
+  }
+}
+
+class _FacultyHeroCard extends StatelessWidget {
+  const _FacultyHeroCard({
+    required this.name,
+    required this.loginId,
+    required this.totalSlots,
+    required this.uniqueRooms,
+    required this.uniqueBatches,
+  });
+
+  final String name;
+  final String loginId;
+  final int totalSlots;
+  final int uniqueRooms;
+  final int uniqueBatches;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Card(
+      elevation: 8,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+      clipBehavior: Clip.antiAlias,
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    colorScheme.primary.withOpacity(0.95),
+                    colorScheme.tertiary.withOpacity(0.85),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(22),
+              ),
+              child: Row(
+                children: [
+                  CircleAvatar(
+                    radius: 28,
+                    backgroundColor: Colors.white.withOpacity(0.18),
+                    child: const Icon(
+                      Icons.school_rounded,
+                      color: Colors.white,
+                      size: 30,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          name,
+                          style: theme.textTheme.titleLarge?.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          'Faculty ID: $loginId',
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: Colors.white.withOpacity(0.9),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 18),
+            Row(
+              children: [
+                Expanded(
+                  child: _StatChip(
+                    label: 'Slots',
+                    value: totalSlots.toString(),
+                    icon: Icons.event_note_rounded,
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: _StatChip(
+                    label: 'Rooms',
+                    value: uniqueRooms.toString(),
+                    icon: Icons.meeting_room_rounded,
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: _StatChip(
+                    label: 'Batches',
+                    value: uniqueBatches.toString(),
+                    icon: Icons.groups_rounded,
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
-      );
-    }
+      ),
+    );
+  }
+}
 
-    return Padding(
-      padding: const EdgeInsets.all(16),
+class _StatChip extends StatelessWidget {
+  const _StatChip({
+    required this.label,
+    required this.value,
+    required this.icon,
+  });
+
+  final String label;
+  final String value;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceVariant.withOpacity(0.45),
+        borderRadius: BorderRadius.circular(18),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _ProfileHeaderCard(
-            name: facultyName,
-            idLabel: 'Faculty ID',
-            idValue: widget.user.loginId,
-          ),
-          const SizedBox(height: 16),
+          Icon(icon, size: 18, color: colorScheme.primary),
+          const SizedBox(height: 10),
           Text(
-            'Teaching Schedule',
-            style: theme.textTheme.titleMedium,
+            value,
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w700,
+            ),
           ),
-          const SizedBox(height: 8),
-          Expanded(
-            child: ListView.builder(
-              itemCount: entries.length,
-              itemBuilder: (context, index) {
-                final entry = entries[index];
-                final courseName = (entry['courseName'] as String? ?? '').isEmpty
-                    ? 'Subject'
-                    : entry['courseName'] as String;
-                final dayName = entry['dayName'] as String? ?? '';
-                final startTime = entry['startTime'] as String? ?? '';
-                final endTime = entry['endTime'] as String? ?? '';
-                final classroomName =
-                    entry['classroomName'] as String? ?? 'Classroom';
-                final batch = entry['batch'] as String? ?? '';
-
-                final subtitleLines = <String>[
-                  '$dayName, $startTime - $endTime',
-                  'Room: $classroomName',
-                ];
-                if (batch.isNotEmpty) {
-                  subtitleLines.add('Batch: $batch');
-                }
-
-                return Card(
-                  margin: const EdgeInsets.symmetric(vertical: 6),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: ListTile(
-                    leading: CircleAvatar(
-                      backgroundColor:
-                          colorScheme.primaryContainer.withOpacity(0.9),
-                      child: Icon(
-                        Icons.menu_book_outlined,
-                        color: colorScheme.primary,
-                      ),
-                    ),
-                    title: Text(courseName),
-                    subtitle: Text(subtitleLines.join('\n')),
-                  ),
-                );
-              },
+          const SizedBox(height: 2),
+          Text(
+            label,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: colorScheme.onSurfaceVariant,
             ),
           ),
         ],
@@ -222,59 +379,197 @@ class _FacultyProfilePageState extends State<FacultyProfilePage> {
   }
 }
 
-class _ProfileHeaderCard extends StatelessWidget {
-  const _ProfileHeaderCard({
-    required this.name,
-    required this.idLabel,
-    required this.idValue,
+class _ScheduleCard extends StatelessWidget {
+  const _ScheduleCard({
+    required this.courseName,
+    required this.dayName,
+    required this.startTime,
+    required this.endTime,
+    required this.classroomName,
+    required this.batch,
+    required this.accentColor,
   });
 
-  final String name;
-  final String idLabel;
-  final String idValue;
+  final String courseName;
+  final String dayName;
+  final String startTime;
+  final String endTime;
+  final String classroomName;
+  final String batch;
+  final Color accentColor;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
 
-    return Card(
-      elevation: 3,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.92),
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: accentColor.withOpacity(0.15)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 18,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            CircleAvatar(
-              radius: 26,
-              backgroundColor: colorScheme.primaryContainer.withOpacity(0.9),
-              child: Icon(
-                Icons.school_outlined,
-                color: colorScheme.primary,
-                size: 28,
+      clipBehavior: Clip.antiAlias,
+      child: Stack(
+        children: [
+          Positioned(
+            left: 0,
+            top: 0,
+            bottom: 0,
+            child: DecoratedBox(
+              child: const SizedBox(width: 10),
+              decoration: BoxDecoration(
+                color: accentColor,
+                borderRadius: const BorderRadius.horizontal(
+                  left: Radius.circular(22),
+                ),
               ),
             ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    name,
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(18, 16, 16, 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        courseName,
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '$idLabel: $idValue',
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: colorScheme.onSurfaceVariant,
-                    ),
-                  ),
+                    _DayPill(label: dayName, color: accentColor),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                _DetailRow(
+                  icon: Icons.access_time_rounded,
+                  text: '$startTime - $endTime',
+                ),
+                const SizedBox(height: 8),
+                _DetailRow(
+                  icon: Icons.location_on_outlined,
+                  text: classroomName,
+                ),
+                if (batch.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  _DetailRow(icon: Icons.group_work_outlined, text: batch),
                 ],
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DetailRow extends StatelessWidget {
+  const _DetailRow({required this.icon, required this.text});
+
+  final IconData icon;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Row(
+      children: [
+        Icon(icon, size: 18, color: theme.colorScheme.primary),
+        const SizedBox(width: 8),
+        Expanded(child: Text(text, style: theme.textTheme.bodyMedium)),
+      ],
+    );
+  }
+}
+
+class _DayPill extends StatelessWidget {
+  const _DayPill({required this.label, required this.color});
+
+  final String label;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.12),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          color: color,
+          fontWeight: FontWeight.w600,
+          fontSize: 12,
+        ),
+      ),
+    );
+  }
+}
+
+class _EmptyScheduleCard extends StatelessWidget {
+  const _EmptyScheduleCard({
+    required this.colorScheme,
+    required this.onRefresh,
+    required this.message,
+  });
+
+  final ColorScheme colorScheme;
+  final VoidCallback onRefresh;
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      child: Padding(
+        padding: const EdgeInsets.all(18),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                CircleAvatar(
+                  backgroundColor: colorScheme.primaryContainer,
+                  child: Icon(Icons.info_outline, color: colorScheme.primary),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Text(
+                    message,
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
+            Text(
+              'If the schedule was updated recently, refresh to load the latest timetable.',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Align(
+              alignment: Alignment.centerRight,
+              child: OutlinedButton.icon(
+                onPressed: onRefresh,
+                icon: const Icon(Icons.refresh_rounded),
+                label: const Text('Refresh schedule'),
               ),
             ),
           ],
