@@ -66,9 +66,16 @@ class _FacultyProfilePageState extends State<FacultyProfilePage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Faculty Profile')),
+      appBar: AppBar(
+        title: const Text('Faculty Profile'),
+        centerTitle: true,
+        elevation: 0,
+        backgroundColor: colorScheme.primary.withOpacity(0.95),
+        foregroundColor: Colors.white,
+      ),
       body: AppBackground(
         opacity: 0.12,
         child: _isLoading
@@ -159,13 +166,36 @@ class _FacultyProfilePageState extends State<FacultyProfilePage> {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Row(
                   children: [
-                    Icon(Icons.schedule_rounded, color: colorScheme.primary),
-                    const SizedBox(width: 8),
-                    Text(
-                      'Teaching Schedule',
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
+                    Container(
+                      width: 42,
+                      height: 42,
+                      decoration: BoxDecoration(
+                        color: colorScheme.primaryContainer.withOpacity(0.8),
+                        borderRadius: BorderRadius.circular(14),
                       ),
+                      child: Icon(
+                        Icons.schedule_rounded,
+                        color: colorScheme.primary,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Teaching Schedule',
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'A polished view of your active timetable slots',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -241,7 +271,7 @@ class _FacultyHeroCard extends StatelessWidget {
     final colorScheme = theme.colorScheme;
 
     return Card(
-      elevation: 8,
+      elevation: 10,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
       clipBehavior: Clip.antiAlias,
       child: Padding(
@@ -278,6 +308,15 @@ class _FacultyHeroCard extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        Text(
+                          'Faculty Profile',
+                          style: theme.textTheme.labelMedium?.copyWith(
+                            color: Colors.white.withOpacity(0.85),
+                            letterSpacing: 0.6,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
                         Text(
                           name,
                           style: theme.textTheme.titleLarge?.copyWith(
@@ -403,16 +442,16 @@ class _ScheduleCard extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: 14),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.92),
+        color: Colors.white.withOpacity(0.95),
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: accentColor.withOpacity(0.15)),
+        border: Border.all(color: accentColor.withOpacity(0.18)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 18,
-            offset: const Offset(0, 8),
+            color: accentColor.withOpacity(0.08),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
           ),
         ],
       ),

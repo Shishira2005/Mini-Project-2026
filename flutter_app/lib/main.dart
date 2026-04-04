@@ -1,6 +1,7 @@
 // Flutter entry point for the college room booking app.
 import 'package:flutter/material.dart';
 
+import 'app_theme.dart';
 import 'features/splash/presentation/splash_page.dart';
 
 void main() {
@@ -15,7 +16,7 @@ class RoomBookingApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'LBS BOOKIFY',
-      theme: ThemeData(useMaterial3: true),
+      theme: buildAppTheme(),
       home: const SplashPage(),
     );
   }

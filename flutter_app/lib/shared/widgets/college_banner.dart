@@ -78,14 +78,18 @@ class _CollegeBannerState extends State<CollegeBanner>
   Widget _buildSegment(BuildContext context, ColorScheme colorScheme) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      color: Colors.black,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [colorScheme.primary, colorScheme.tertiary],
+        ),
+      ),
       child: Text(
         'LBS COLLEGE OF ENGINEERING KASARAGOD',
         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Colors.white,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 0.8,
-            ),
+          color: Colors.white,
+          fontWeight: FontWeight.w600,
+          letterSpacing: 0.8,
+        ),
       ),
     );
   }
