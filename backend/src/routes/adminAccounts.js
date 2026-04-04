@@ -3,7 +3,7 @@ const express = require("express");
 
 const UserAccount = require("../models/UserAccount");
 const CommonFacilitiesRequest = require("../models/CommonFacilitiesRequest");
-const { hashPassword } = require("../utils/auth");
+const CommonFacilitiesVerificationHistory = require("../models/CommonFacilitiesVerificationHistory");
 
 const router = express.Router();
 
@@ -94,6 +94,13 @@ router.patch("/verification/:email", async (req, res) => {
       isActive: true,
     });
 
+    await CommonFacilitiesVerificationHistory.create({
+      email,
+      name: request.name,
+      category: request.category,
+      status: "approved",
+    });
+
     await CommonFacilitiesRequest.deleteOne({ email });
 
     res.json({
@@ -102,6 +109,59 @@ router.patch("/verification/:email", async (req, res) => {
       category: request.category,
       status: "approved",
     });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// PATCH /api/admin/accounts/verification/:email/decline
+// Removes the pending request and stores a declined history record.
+router.patch("/verification/:email/decline", async (req, res) => {
+  try {
+    const email = String(req.params.email).trim().toLowerCase();
+    const request = await CommonFacilitiesRequest.findOne({ email });
+
+    if (!request) {
+      return res.status(404).json({ message: "Request not found" });
+    }
+
+    await CommonFacilitiesVerificationHistory.create({
+      email,
+      name: request.name,
+      category: request.category,
+      status: "declined",
+    });
+
+    await CommonFacilitiesRequest.deleteOne({ email });
+
+    res.json({
+      email,
+      name: request.name,
+      category: request.category,
+      status: "declined",
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// GET /api/admin/accounts/verification-history
+// Returns the approval/decline history.
+router.get("/verification-history", async (req, res) => {
+  try {
+    const history = await CommonFacilitiesVerificationHistory.find({})
+      .sort({ decidedAt: -1, createdAt: -1 })
+      .lean();
+
+    res.json(
+      history.map((entry) => ({
+        email: entry.email,
+        name: entry.name,
+        category: entry.category,
+        status: entry.status,
+        decidedAt: entry.decidedAt,
+      }))
+    );
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

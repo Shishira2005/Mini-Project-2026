@@ -14,6 +14,7 @@ import 'blueprint_page.dart';
 import 'student_accounts_page.dart';
 import 'faculty_accounts_page.dart';
 import 'account_verification_page.dart';
+import 'account_verification_history_page.dart';
 
 class AdminHomePage extends StatefulWidget {
   const AdminHomePage({super.key, required this.user});
@@ -161,6 +162,18 @@ class _AdminHomePageState extends State<AdminHomePage> {
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (_) => const AccountVerificationPage(),
+                    ),
+                  );
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.history_outlined),
+                title: const Text('Account Verification History'),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const AccountVerificationHistoryPage(),
                     ),
                   );
                 },

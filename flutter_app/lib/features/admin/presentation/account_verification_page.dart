@@ -1,8 +1,9 @@
-// Admin page for approving Common Facilities account requests.
+// Admin page for approving or declining Common Facilities account requests.
 import 'package:flutter/material.dart';
 
 import '../../../core/api/api_client.dart';
 import '../../../shared/widgets/app_background.dart';
+import '../../../shared/widgets/college_banner.dart';
 
 class AccountVerificationPage extends StatefulWidget {
   const AccountVerificationPage({super.key});
@@ -83,10 +84,35 @@ class _AccountVerificationPageState extends State<AccountVerificationPage> {
     }
   }
 
+  Future<void> _declineAccount(Map<String, dynamic> account) async {
+    final email = account['email']?.toString() ?? '';
+    if (email.isEmpty) return;
+
+    try {
+      await _apiClient.patch(
+        '/api/admin/accounts/verification/${Uri.encodeComponent(email)}/decline',
+      );
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Declined request for $email')));
+      await _loadAccounts();
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(error.toString().replaceFirst('Exception: ', '')),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Account Verification')),
+      bottomNavigationBar: const CollegeBanner(),
       body: AppBackground(
         opacity: 0.12,
         child: RefreshIndicator(
@@ -144,9 +170,18 @@ class _AccountVerificationPageState extends State<AccountVerificationPage> {
             leading: const Icon(Icons.verified_user_outlined),
             title: Text(name.isEmpty ? email : name),
             subtitle: Text(subtitle),
-            trailing: ElevatedButton(
-              onPressed: () => _verifyAccount(account),
-              child: const Text('Approve'),
+            trailing: Wrap(
+              spacing: 8,
+              children: [
+                ElevatedButton(
+                  onPressed: () => _verifyAccount(account),
+                  child: const Text('Approve'),
+                ),
+                OutlinedButton(
+                  onPressed: () => _declineAccount(account),
+                  child: const Text('Decline'),
+                ),
+              ],
             ),
           ),
         );
