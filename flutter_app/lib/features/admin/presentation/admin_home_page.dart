@@ -15,6 +15,7 @@ import 'student_accounts_page.dart';
 import 'faculty_accounts_page.dart';
 import 'account_verification_page.dart';
 import 'account_verification_history_page.dart';
+import 'common_facilities_accounts_page.dart';
 
 class AdminHomePage extends StatefulWidget {
   const AdminHomePage({super.key, required this.user});
@@ -174,6 +175,18 @@ class _AdminHomePageState extends State<AdminHomePage> {
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (_) => const AccountVerificationHistoryPage(),
+                    ),
+                  );
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.delete_outline),
+                title: const Text('Delete Common Facilities Accounts'),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const CommonFacilitiesAccountsPage(),
                     ),
                   );
                 },

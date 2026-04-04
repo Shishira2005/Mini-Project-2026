@@ -97,6 +97,30 @@ router.get("/faculty", async (req, res) => {
   }
 });
 
+// GET /api/admin/accounts/common-facilities
+// Returns all active Common Facilities accounts.
+router.get("/common-facilities", async (req, res) => {
+  try {
+    const accounts = await UserAccount.find({
+      role: "commonFacilities",
+      isActive: true,
+    })
+      .sort({ loginId: 1 })
+      .lean();
+
+    res.json(
+      accounts.map((u) => ({
+        role: u.role,
+        loginId: u.loginId,
+        name: u.name,
+        category: u.commonFacilitiesCategory || "",
+      }))
+    );
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 // GET /api/admin/accounts/verification
 // Returns pending Common Facilities account requests that are waiting for approval.
 router.get("/verification", async (req, res) => {
@@ -264,6 +288,34 @@ router.patch("/verification-history/:id/retry-notification", async (req, res) =>
       status: history.status,
       notificationStatus: result.notificationStatus,
       notificationError: result.notificationError || "",
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// DELETE /api/admin/accounts/common-facilities/:email
+// Permanently removes an existing Common Facilities account.
+router.delete("/common-facilities/:email", async (req, res) => {
+  try {
+    const email = String(req.params.email).trim().toLowerCase();
+
+    const account = await UserAccount.findOne({
+      role: "commonFacilities",
+      loginId: email,
+      isActive: true,
+    });
+
+    if (!account) {
+      return res.status(404).json({ message: "Common Facilities account not found" });
+    }
+
+    await UserAccount.deleteOne({ _id: account._id });
+
+    res.json({
+      message: "Common Facilities account deleted successfully",
+      email,
+      name: account.name,
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
