@@ -20,6 +20,12 @@ function createMailerTransport() {
     });
   }
 
+  if (String(process.env.NODE_ENV || "development").toLowerCase() === "production") {
+    throw new Error(
+      "SMTP_HOST is not configured. Set SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS and SMTP_FROM in the production environment."
+    );
+  }
+
   return nodemailer.createTransport({ jsonTransport: true });
 }
 

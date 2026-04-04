@@ -39,8 +39,9 @@ class _AccountVerificationHistoryPageState
     });
 
     try {
-      final data = await _apiClient.get('/api/admin/accounts/verification-history')
-          as List<dynamic>;
+      final data =
+          await _apiClient.get('/api/admin/accounts/verification-history')
+              as List<dynamic>;
 
       if (!mounted) return;
       setState(() {
@@ -65,22 +66,26 @@ class _AccountVerificationHistoryPageState
     if (id.isEmpty) return;
 
     try {
-      final response = await _apiClient.patch(
-        '/api/admin/accounts/verification-history/$id/retry-notification',
-      ) as Map<String, dynamic>;
+      final response =
+          await _apiClient.patch(
+                '/api/admin/accounts/verification-history/$id/retry-notification',
+              )
+              as Map<String, dynamic>;
 
       if (!mounted) return;
 
-      final notificationStatus = response['notificationStatus']?.toString() ?? '';
+      final notificationStatus =
+          response['notificationStatus']?.toString() ?? '';
       final notificationError = response['notificationError']?.toString() ?? '';
       final message = notificationStatus == 'sent'
           ? 'Notification email resent successfully.'
           : notificationError.isEmpty
-              ? 'Notification resend failed.'
-              : 'Notification resend failed: $notificationError';
+          ? 'Notification resend failed.'
+          : 'Notification resend failed: $notificationError';
 
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(message)));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(message)));
       await _loadHistory();
     } catch (error) {
       if (!mounted) return;
@@ -172,18 +177,23 @@ class _AccountVerificationHistoryPageState
                   children: [
                     _StatusBadge(
                       label: status.isEmpty ? 'UNKNOWN' : status.toUpperCase(),
-                      backgroundColor:
-                          isApproved ? Colors.green.shade100 : Colors.red.shade100,
-                      foregroundColor:
-                          isApproved ? Colors.green.shade900 : Colors.red.shade900,
+                      backgroundColor: isApproved
+                          ? Colors.green.shade100
+                          : Colors.red.shade100,
+                      foregroundColor: isApproved
+                          ? Colors.green.shade900
+                          : Colors.red.shade900,
                     ),
                     _StatusBadge(
                       label: notificationStatus.isEmpty
                           ? 'NOTIFICATION: PENDING'
                           : 'NOTIFICATION: ${notificationStatus.toUpperCase()}',
-                      backgroundColor: _notificationBadgeColor(notificationStatus),
-                      foregroundColor:
-                          _notificationBadgeForeground(notificationStatus),
+                      backgroundColor: _notificationBadgeColor(
+                        notificationStatus,
+                      ),
+                      foregroundColor: _notificationBadgeForeground(
+                        notificationStatus,
+                      ),
                     ),
                     _StatusBadge(
                       label: 'ATTEMPTS: $notificationAttempts',
@@ -289,13 +299,6 @@ class _StatusBadge extends StatelessWidget {
           fontWeight: FontWeight.w600,
         ),
       ),
-    );
-  }
-}
-            ),
-          ),
-        );
-      },
     );
   }
 }
