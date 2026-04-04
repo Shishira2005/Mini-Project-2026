@@ -36,21 +36,38 @@ const ensureFacultyAccountsFromLayout = async (layout) => {
 
   const ops = [];
   for (const [facultyId, facultyName] of facultyMap.entries()) {
-    ops.push(
-      UserAccount.updateOne(
-        { loginId: facultyId },
-        {
-          $setOnInsert: {
-            role: "faculty",
-            loginId: facultyId,
-            name: facultyName,
-            passwordHash: defaultPasswordHash,
-            isActive: true,
+    const existingAccount = await UserAccount.findOne({
+      loginId: facultyId,
+      role: "faculty",
+    }).exec();
+
+    if (!existingAccount) {
+      ops.push(
+        UserAccount.updateOne(
+          { loginId: facultyId },
+          {
+            $setOnInsert: {
+              role: "faculty",
+              loginId: facultyId,
+              name: facultyName,
+              passwordHash: defaultPasswordHash,
+              isActive: true,
+            },
           },
-        },
-        { upsert: true }
-      ).exec()
-    );
+          { upsert: true }
+        ).exec()
+      );
+      continue;
+    }
+
+    const currentName = String(existingAccount.name || "").trim();
+    const shouldBackfillName =
+      !currentName || currentName === existingAccount.loginId;
+
+    if (shouldBackfillName && facultyName && facultyName !== facultyId) {
+      existingAccount.name = facultyName;
+      ops.push(existingAccount.save());
+    }
   }
 
   await Promise.all(ops);

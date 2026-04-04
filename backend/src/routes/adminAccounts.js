@@ -2,12 +2,65 @@
 const express = require("express");
 
 const UserAccount = require("../models/UserAccount");
+const TimetableEntry = require("../models/TimetableEntry");
 const CommonFacilitiesRequest = require("../models/CommonFacilitiesRequest");
 const CommonFacilitiesVerificationHistory = require("../models/CommonFacilitiesVerificationHistory");
 const { sendMail } = require("../utils/mailer");
 const { buildVerificationEmail } = require("../utils/verificationEmails");
 
 const router = express.Router();
+
+function normalizeName(value) {
+  return String(value || "").trim();
+}
+
+async function backfillFacultyNames(facultyAccounts) {
+  const missingFacultyIds = facultyAccounts
+    .filter((account) => !normalizeName(account.name))
+    .map((account) => account.loginId);
+
+  if (missingFacultyIds.length === 0) {
+    return facultyAccounts;
+  }
+
+  const timetableEntries = await TimetableEntry.find({
+    "faculty.facultyId": { $in: missingFacultyIds },
+  })
+    .select("faculty")
+    .lean();
+
+  const nameByFacultyId = new Map();
+  for (const entry of timetableEntries) {
+    const facultyId = normalizeName(entry?.faculty?.facultyId);
+    const facultyName = normalizeName(entry?.faculty?.name);
+
+    if (facultyId && facultyName && !nameByFacultyId.has(facultyId)) {
+      nameByFacultyId.set(facultyId, facultyName);
+    }
+  }
+
+  const updates = [];
+  for (const account of facultyAccounts) {
+    if (normalizeName(account.name)) continue;
+
+    const resolvedName = nameByFacultyId.get(account.loginId);
+    if (!resolvedName || resolvedName === account.loginId) continue;
+
+    account.name = resolvedName;
+    updates.push(
+      UserAccount.updateOne(
+        { _id: account._id },
+        { $set: { name: resolvedName } }
+      ).exec()
+    );
+  }
+
+  if (updates.length > 0) {
+    await Promise.all(updates);
+  }
+
+  return facultyAccounts;
+}
 
 async function sendVerificationNotice(history, request) {
   const emailTemplate = buildVerificationEmail({
@@ -85,11 +138,13 @@ router.get("/faculty", async (req, res) => {
       .sort({ loginId: 1 })
       .lean();
 
+    const enrichedFaculty = await backfillFacultyNames(faculty);
+
     res.json(
-      faculty.map((u) => ({
+      enrichedFaculty.map((u) => ({
         role: u.role,
         loginId: u.loginId,
-        name: u.name,
+        name: normalizeName(u.name) || u.loginId,
       }))
     );
   } catch (error) {

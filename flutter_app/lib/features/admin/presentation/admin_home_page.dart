@@ -56,8 +56,8 @@ class _AdminHomePageState extends State<AdminHomePage> {
       bottomNavigationBar: const CollegeBanner(),
       drawer: Drawer(
         child: SafeArea(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+          child: ListView(
+            padding: EdgeInsets.zero,
             children: [
               UserAccountsDrawerHeader(
                 accountName: Text(user.name),
@@ -191,7 +191,6 @@ class _AdminHomePageState extends State<AdminHomePage> {
                   );
                 },
               ),
-              const Spacer(),
               const Divider(height: 1),
               ListTile(
                 leading: Icon(
