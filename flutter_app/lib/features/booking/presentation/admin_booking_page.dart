@@ -78,7 +78,9 @@ class _AdminBookingPageState extends State<AdminBookingPage> {
   }
 
   bool get _canProceed =>
-      _selectedDate != null && _selectedTimeSlot != null && _projectorRequired != null;
+      _selectedDate != null &&
+      _selectedTimeSlot != null &&
+      _projectorRequired != null;
 
   Future<void> _pickDate() async {
     final now = DateTime.now();
@@ -114,9 +116,7 @@ class _AdminBookingPageState extends State<AdminBookingPage> {
     final isAdmin = widget.user.role == UserRole.admin;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(isAdmin ? 'Admin Booking' : 'Room Booking'),
-      ),
+      appBar: AppBar(title: Text(isAdmin ? 'Admin Booking' : 'Room Booking')),
       bottomNavigationBar: const CollegeBanner(),
       body: AppBackground(
         opacity: 0.12,
@@ -145,10 +145,7 @@ class _AdminBookingPageState extends State<AdminBookingPage> {
                       const SizedBox(height: 16),
 
                       // Space type – controls which default time slots are shown.
-                      Text(
-                        'Space type',
-                        style: theme.textTheme.labelLarge,
-                      ),
+                      Text('Space type', style: theme.textTheme.labelLarge),
                       const SizedBox(height: 4),
                       DecoratedBox(
                         decoration: BoxDecoration(
@@ -200,14 +197,14 @@ class _AdminBookingPageState extends State<AdminBookingPage> {
                       const SizedBox(height: 20),
 
                       // Date selector.
-                      Text(
-                        'Date',
-                        style: theme.textTheme.labelLarge,
-                      ),
+                      Text('Date', style: theme.textTheme.labelLarge),
                       const SizedBox(height: 4),
                       OutlinedButton.icon(
                         onPressed: _pickDate,
-                        icon: const Icon(Icons.calendar_today_outlined, size: 18),
+                        icon: const Icon(
+                          Icons.calendar_today_outlined,
+                          size: 18,
+                        ),
                         label: Align(
                           alignment: Alignment.centerLeft,
                           child: Text(
@@ -227,10 +224,7 @@ class _AdminBookingPageState extends State<AdminBookingPage> {
                       const SizedBox(height: 16),
 
                       // Time slot selector with default slots per space type.
-                      Text(
-                        'Time slot',
-                        style: theme.textTheme.labelLarge,
-                      ),
+                      Text('Time slot', style: theme.textTheme.labelLarge),
                       const SizedBox(height: 4),
                       DropdownButtonFormField<String>(
                         initialValue: _selectedTimeSlot,
@@ -332,10 +326,7 @@ enum _Floor { ground, first }
 enum _RoomKind { classroom, seminarOrLab, other }
 
 class _RoomTile {
-  const _RoomTile({
-    required this.label,
-    required this.kind,
-  });
+  const _RoomTile({required this.label, required this.kind});
 
   final String label;
   final _RoomKind kind;
@@ -438,8 +429,9 @@ class _AdminBookingNextPageState extends State<AdminBookingNextPage> {
         final room = item['room'];
         if (room is! Map<String, dynamic>) continue;
 
-        final roomNumber =
-            (room['roomNumber'] ?? room['name'] ?? '').toString().toUpperCase();
+        final roomNumber = (room['roomNumber'] ?? room['name'] ?? '')
+            .toString()
+            .toUpperCase();
         final available = item['available'] == true;
         final reason = item['reason']?.toString();
         if (roomNumber.isEmpty) continue;
@@ -505,12 +497,10 @@ class _AdminBookingNextPageState extends State<AdminBookingNextPage> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Select Room (Blueprint)'),
-      ),
+      appBar: AppBar(title: const Text('Select Room (Blueprint)')),
       bottomNavigationBar: const CollegeBanner(),
-      body: Container
-        (color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
+      body: Container(
+        color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
         alignment: Alignment.topCenter,
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -531,8 +521,8 @@ class _AdminBookingNextPageState extends State<AdminBookingNextPage> {
                       children: [
                         CircleAvatar(
                           radius: 22,
-                          backgroundColor:
-                              theme.colorScheme.primary.withOpacity(0.08),
+                          backgroundColor: theme.colorScheme.primary
+                              .withOpacity(0.08),
                           child: Icon(
                             Icons.meeting_room_outlined,
                             color: theme.colorScheme.primary,
@@ -553,8 +543,7 @@ class _AdminBookingNextPageState extends State<AdminBookingNextPage> {
                               Text(
                                 'Tap on an available (green) room to continue with your booking.',
                                 style: theme.textTheme.bodyMedium?.copyWith(
-                                  color: theme
-                                      .textTheme.bodyMedium?.color
+                                  color: theme.textTheme.bodyMedium?.color
                                       ?.withOpacity(0.7),
                                 ),
                               ),
@@ -588,10 +577,15 @@ class _AdminBookingNextPageState extends State<AdminBookingNextPage> {
                       ],
                     ),
                     const SizedBox(height: 16),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    Wrap(
+                      spacing: 12,
+                      runSpacing: 12,
+                      alignment: WrapAlignment.spaceBetween,
+                      crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
-                        Row(
+                        Wrap(
+                          spacing: 12,
+                          runSpacing: 12,
                           children: [
                             ChoiceChip(
                               label: const Text('Ground Floor'),
@@ -600,7 +594,6 @@ class _AdminBookingNextPageState extends State<AdminBookingNextPage> {
                                 setState(() => _selectedFloor = _Floor.ground);
                               },
                             ),
-                            const SizedBox(width: 12),
                             ChoiceChip(
                               label: const Text('1st Floor'),
                               selected: _selectedFloor == _Floor.first,
@@ -610,13 +603,15 @@ class _AdminBookingNextPageState extends State<AdminBookingNextPage> {
                             ),
                           ],
                         ),
-                        const SizedBox(width: 12),
-                        Row(
+                        Wrap(
+                          spacing: 12,
+                          runSpacing: 12,
                           children: const [
                             _LegendDot(color: Colors.green, label: 'Available'),
-                            SizedBox(width: 12),
-                            _LegendDot(color: Colors.red, label: 'Not available'),
-                            SizedBox(width: 12),
+                            _LegendDot(
+                              color: Colors.red,
+                              label: 'Not available',
+                            ),
                             _LegendDot(color: Colors.grey, label: 'Other room'),
                           ],
                         ),
@@ -627,20 +622,19 @@ class _AdminBookingNextPageState extends State<AdminBookingNextPage> {
                       child: _isLoading
                           ? const Center(child: CircularProgressIndicator())
                           : _error != null
-                              ? Center(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Text(
-                                      _error!,
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        color:
-                                            theme.colorScheme.error,
-                                      ),
-                                    ),
+                          ? Center(
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text(
+                                  _error!,
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: theme.colorScheme.error,
                                   ),
-                                )
-                              : _buildFloorPlan(),
+                                ),
+                              ),
+                            )
+                          : _buildFloorPlan(),
                     ),
                   ],
                 ),
@@ -653,8 +647,9 @@ class _AdminBookingNextPageState extends State<AdminBookingNextPage> {
   }
 
   Widget _buildFloorPlan() {
-    final rooms =
-        _selectedFloor == _Floor.ground ? _groundFloorRooms : _firstFloorRooms;
+    final rooms = _selectedFloor == _Floor.ground
+        ? _groundFloorRooms
+        : _firstFloorRooms;
 
     return GridView.builder(
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -671,8 +666,9 @@ class _AdminBookingNextPageState extends State<AdminBookingNextPage> {
         return InkWell(
           onTap: _isRoomSelectable(room)
               ? () {
-                  final backendKey =
-                      _backendKeyForDisplayLabel(room.label).toUpperCase();
+                  final backendKey = _backendKeyForDisplayLabel(
+                    room.label,
+                  ).toUpperCase();
 
                   if (color == Colors.green) {
                     final roomId = _roomIdByRoomNumber[backendKey];
@@ -680,7 +676,9 @@ class _AdminBookingNextPageState extends State<AdminBookingNextPage> {
                     if (roomId == null) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text('Could not find room details for booking.'),
+                          content: Text(
+                            'Could not find room details for booking.',
+                          ),
                         ),
                       );
                       return;
@@ -716,10 +714,11 @@ class _AdminBookingNextPageState extends State<AdminBookingNextPage> {
                     );
                   } else if (color == Colors.red) {
                     final reason =
-                        _reasonByRoom[backendKey] ?? 'Room not available for this slot.';
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(reason)),
-                    );
+                        _reasonByRoom[backendKey] ??
+                        'Room not available for this slot.';
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(SnackBar(content: Text(reason)));
                   }
                 }
               : null,
@@ -830,7 +829,8 @@ class AdminBookingConfirmPage extends StatefulWidget {
   final String spaceType;
 
   @override
-  State<AdminBookingConfirmPage> createState() => _AdminBookingConfirmPageState();
+  State<AdminBookingConfirmPage> createState() =>
+      _AdminBookingConfirmPageState();
 }
 
 class _AdminBookingConfirmPageState extends State<AdminBookingConfirmPage> {
@@ -898,8 +898,8 @@ class _AdminBookingConfirmPageState extends State<AdminBookingConfirmPage> {
       final destinationPage = user.role == UserRole.admin
           ? AdminHomePage(user: user)
           : user.role == UserRole.faculty
-              ? FacultyHomePage(user: user)
-              : RepresentativeHomePage(user: user);
+          ? FacultyHomePage(user: user)
+          : RepresentativeHomePage(user: user);
 
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (_) => destinationPage),
@@ -908,7 +908,9 @@ class _AdminBookingConfirmPageState extends State<AdminBookingConfirmPage> {
     } catch (error) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(error.toString().replaceFirst('Exception: ', ''))),
+        SnackBar(
+          content: Text(error.toString().replaceFirst('Exception: ', '')),
+        ),
       );
     } finally {
       if (mounted) {
@@ -924,9 +926,7 @@ class _AdminBookingConfirmPageState extends State<AdminBookingConfirmPage> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Confirm Booking'),
-      ),
+      appBar: AppBar(title: const Text('Confirm Booking')),
       bottomNavigationBar: const CollegeBanner(),
       body: Container(
         color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
@@ -950,8 +950,8 @@ class _AdminBookingConfirmPageState extends State<AdminBookingConfirmPage> {
                       children: [
                         CircleAvatar(
                           radius: 22,
-                          backgroundColor:
-                              theme.colorScheme.primary.withOpacity(0.08),
+                          backgroundColor: theme.colorScheme.primary
+                              .withOpacity(0.08),
                           child: Icon(
                             Icons.check_circle_outline,
                             color: theme.colorScheme.primary,
@@ -972,8 +972,7 @@ class _AdminBookingConfirmPageState extends State<AdminBookingConfirmPage> {
                               Text(
                                 'Double‑check the details below, then add requester and purpose to finalize the booking.',
                                 style: theme.textTheme.bodyMedium?.copyWith(
-                                  color: theme
-                                      .textTheme.bodyMedium?.color
+                                  color: theme.textTheme.bodyMedium?.color
                                       ?.withOpacity(0.7),
                                 ),
                               ),
@@ -1012,8 +1011,9 @@ class _AdminBookingConfirmPageState extends State<AdminBookingConfirmPage> {
                         _InfoChip(
                           icon: Icons.videocam_outlined,
                           label: 'Projector',
-                          value:
-                              widget.projectorRequired ? 'Required' : 'Not required',
+                          value: widget.projectorRequired
+                              ? 'Required'
+                              : 'Not required',
                         ),
                       ],
                     ),
@@ -1074,8 +1074,9 @@ class _AdminBookingConfirmPageState extends State<AdminBookingConfirmPage> {
                             children: [
                               Expanded(
                                 child: OutlinedButton(
-                                  onPressed:
-                                      _isSubmitting ? null : () => Navigator.of(context).pop(),
+                                  onPressed: _isSubmitting
+                                      ? null
+                                      : () => Navigator.of(context).pop(),
                                   child: const Text('Back'),
                                 ),
                               ),
@@ -1111,10 +1112,7 @@ class _AdminBookingConfirmPageState extends State<AdminBookingConfirmPage> {
 }
 
 class _LegendDot extends StatelessWidget {
-  const _LegendDot({
-    required this.color,
-    required this.label,
-  });
+  const _LegendDot({required this.color, required this.label});
 
   final Color color;
   final String label;
@@ -1127,10 +1125,7 @@ class _LegendDot extends StatelessWidget {
         Container(
           width: 14,
           height: 14,
-          decoration: BoxDecoration(
-            color: color,
-            shape: BoxShape.circle,
-          ),
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
         const SizedBox(width: 4),
         Text(label, style: const TextStyle(fontSize: 12)),
@@ -1159,9 +1154,7 @@ class _InfoChip extends StatelessWidget {
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(
-          color: theme.colorScheme.outlineVariant,
-        ),
+        border: Border.all(color: theme.colorScheme.outlineVariant),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -1174,10 +1167,7 @@ class _InfoChip extends StatelessWidget {
               fontWeight: FontWeight.w600,
             ),
           ),
-          Text(
-            value,
-            style: theme.textTheme.bodySmall,
-          ),
+          Text(value, style: theme.textTheme.bodySmall),
         ],
       ),
     );

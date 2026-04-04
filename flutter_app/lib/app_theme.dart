@@ -33,7 +33,7 @@ ThemeData buildAppTheme() {
         fontWeight: FontWeight.w700,
       ),
     ),
-    cardTheme: CardTheme(
+    cardTheme: CardThemeData(
       color: Colors.white.withOpacity(0.92),
       elevation: 6,
       surfaceTintColor: Colors.white,
